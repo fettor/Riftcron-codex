@@ -33,6 +33,10 @@ namespace Tuntenfisch.World
         private int m_initialChunkPoolPopulation = 0;
         [SerializeField]
         private float[] m_lodDistances;
+        [SerializeField, Min(0)]
+        private int m_chunksAboveViewer = 2;
+        [SerializeField, Min(0)]
+        private int m_chunksBelowViewer = 2;
 
         private VoxelConfig m_voxelConfig;
         private VoxelVolume m_voxelVolume;
@@ -146,17 +150,19 @@ namespace Tuntenfisch.World
 
         private void UpdateWorld(float3 viewerPosition)
         {
-            DestroyChunksOutsideViewDistance(viewerPosition);
-            CreateChunksWithinViewDistance(viewerPosition);
+            int3 viewerChunkCoordinate = CalculateChunkCoordinate(viewerPosition);
+
+            DestroyChunksOutsideViewDistance(viewerPosition, viewerChunkCoordinate);
+            CreateChunksWithinViewDistance(viewerPosition, viewerChunkCoordinate);
         }
 
-        private void DestroyChunksOutsideViewDistance(float3 viewerPosition)
+        private void DestroyChunksOutsideViewDistance(float3 viewerPosition, int3 viewerChunkCoordinate)
         {
             foreach (KeyValuePair<int3, Chunk> pair in m_chunks)
             {
                 float viewerToChunkDistanceSquared = math.lengthsq((float3)pair.Value.transform.position - viewerPosition);
 
-                if (viewerToChunkDistanceSquared > ViewDistanceSquared)
+                if (!IsChunkWithinVerticalRange(pair.Key.y, viewerChunkCoordinate.y) || viewerToChunkDistanceSquared > ViewDistanceSquared)
                 {
                     m_chunksOutsideOfViewDistance.Add(pair.Key);
                 }
@@ -170,21 +176,16 @@ namespace Tuntenfisch.World
             m_chunksOutsideOfViewDistance.Clear();
         }
 
-        private void CreateChunksWithinViewDistance(float3 viewerPosition)
+        private void CreateChunksWithinViewDistance(float3 viewerPosition, int3 viewerChunkCoordinate)
         {
-            int3 chunkCoordinate = CalculateChunkCoordinate(viewerPosition);
-            float3 chunkPosition = chunkCoordinate * m_chunkDimensions;
-            float viewerToChunkDistanceSquared = math.lengthsq(chunkPosition - viewerPosition);
-            int lod = CalculateChunkLod(viewerToChunkDistanceSquared);
-
             m_processedChunkCoordinates.Clear();
             m_chunksToProcess.Clear();
 
-            EnqueueChunk(chunkCoordinate, viewerPosition);
+            EnqueueChunk(viewerChunkCoordinate, viewerPosition, viewerChunkCoordinate);
 
             while (m_chunksToProcess.Count > 0)
             {
-                (chunkCoordinate, chunkPosition, lod) = m_chunksToProcess.Dequeue();
+                (int3 chunkCoordinate, float3 chunkPosition, int lod) = m_chunksToProcess.Dequeue();
 
                 if (m_chunks.TryGetValue(chunkCoordinate, out Chunk chunk))
                 {
@@ -200,23 +201,28 @@ namespace Tuntenfisch.World
                     m_chunks[chunkCoordinate] = chunk;
                 }
 
-                EnqueueChunk(chunkCoordinate + new int3(1, 0, 0), viewerPosition);
-                EnqueueChunk(chunkCoordinate - new int3(1, 0, 0), viewerPosition);
-                EnqueueChunk(chunkCoordinate + new int3(0, 0, 1), viewerPosition);
-                EnqueueChunk(chunkCoordinate - new int3(0, 0, 1), viewerPosition);
+                EnqueueChunk(chunkCoordinate + new int3(1, 0, 0), viewerPosition, viewerChunkCoordinate);
+                EnqueueChunk(chunkCoordinate - new int3(1, 0, 0), viewerPosition, viewerChunkCoordinate);
+                EnqueueChunk(chunkCoordinate + new int3(0, 1, 0), viewerPosition, viewerChunkCoordinate);
+                EnqueueChunk(chunkCoordinate - new int3(0, 1, 0), viewerPosition, viewerChunkCoordinate);
+                EnqueueChunk(chunkCoordinate + new int3(0, 0, 1), viewerPosition, viewerChunkCoordinate);
+                EnqueueChunk(chunkCoordinate - new int3(0, 0, 1), viewerPosition, viewerChunkCoordinate);
             }
         }
 
-        private void EnqueueChunk(int3 neighbourChunkCoordinate, float3 viewerPosition)
+        private void EnqueueChunk(int3 neighbourChunkCoordinate, float3 viewerPosition, int3 viewerChunkCoordinate)
         {
             if (!m_processedChunkCoordinates.Contains(neighbourChunkCoordinate))
             {
-                float3 neighbourChunkPosition = neighbourChunkCoordinate * m_chunkDimensions;
-                float viewerToNeighbourChunkDistanceSquared = math.lengthsq(neighbourChunkPosition - viewerPosition);
-
-                if (viewerToNeighbourChunkDistanceSquared <= ViewDistanceSquared)
+                if (IsChunkWithinVerticalRange(neighbourChunkCoordinate.y, viewerChunkCoordinate.y))
                 {
-                    m_chunksToProcess.Enqueue((neighbourChunkCoordinate, neighbourChunkPosition, CalculateChunkLod(viewerToNeighbourChunkDistanceSquared)));
+                    float3 neighbourChunkPosition = neighbourChunkCoordinate * m_chunkDimensions;
+                    float viewerToNeighbourChunkDistanceSquared = math.lengthsq(neighbourChunkPosition - viewerPosition);
+
+                    if (viewerToNeighbourChunkDistanceSquared <= ViewDistanceSquared)
+                    {
+                        m_chunksToProcess.Enqueue((neighbourChunkCoordinate, neighbourChunkPosition, CalculateChunkLod(viewerToNeighbourChunkDistanceSquared)));
+                    }
                 }
             }
             m_processedChunkCoordinates.Add(neighbourChunkCoordinate);
@@ -231,7 +237,15 @@ namespace Tuntenfisch.World
             return VoxelConfig.VoxelVolumeConfig.VoxelVolumeDimensions / inflationFactor;
         }
 
-        private int3 CalculateChunkCoordinate(float3 position) => new int3((int)math.round(position.x / m_chunkDimensions.x), 0, (int)math.round(position.z / m_chunkDimensions.z));
+        private int3 CalculateChunkCoordinate(float3 position) => new int3((int)math.round(position.x / m_chunkDimensions.x), (int)math.round(position.y / m_chunkDimensions.y), (int)math.round(position.z / m_chunkDimensions.z));
+
+        private bool IsChunkWithinVerticalRange(int chunkY, int viewerChunkY)
+        {
+            int chunksAbove = math.max(0, m_chunksAboveViewer);
+            int chunksBelow = math.max(0, m_chunksBelowViewer);
+
+            return chunkY >= viewerChunkY - chunksBelow && chunkY <= viewerChunkY + chunksAbove;
+        }
 
         private float[] CalculateLodDistancesSquared()
         {
