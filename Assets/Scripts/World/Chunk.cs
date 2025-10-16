@@ -33,6 +33,8 @@ namespace Tuntenfisch.World
         private JobHandle m_bakeJobHandle;
         private List<GPUVoxelVolumeCSGOperation> m_voxelVolumeCSGOperations;
         private ChunkFlags m_flags;
+        private PackedVoxel[] m_packedVoxelCache;
+        private bool m_packedVoxelCacheValid;
 
         private void Awake()
         {
@@ -101,6 +103,8 @@ namespace Tuntenfisch.World
         {
             m_currentLOD = m_targetLOD = m_vertexCount = m_triangleCount = -1;
             CreateBuffers();
+            m_packedVoxelCache = null;
+            m_packedVoxelCacheValid = false;
             gameObject.SetActive(true);
         }
 
@@ -112,6 +116,8 @@ namespace Tuntenfisch.World
             m_request = null;
             m_voxelVolumeCSGOperations.Clear();
             m_flags = 0;
+            m_packedVoxelCache = null;
+            m_packedVoxelCacheValid = false;
             gameObject.SetActive(false);
         }
 
@@ -155,6 +161,9 @@ namespace Tuntenfisch.World
                 m_voxelVolumeBuffer?.Release();
                 m_voxelVolumeBuffer = new ComputeBuffer(WorldManager.VoxelConfig.VoxelVolumeConfig.VoxelCount, 2 * sizeof(uint));
             }
+
+            m_packedVoxelCache = null;
+            m_packedVoxelCacheValid = false;
         }
 
         private void ReleaseBuffers()
@@ -164,9 +173,16 @@ namespace Tuntenfisch.World
                 m_voxelVolumeBuffer.Release();
                 m_voxelVolumeBuffer = null;
             }
+
+            m_packedVoxelCache = null;
+            m_packedVoxelCacheValid = false;
         }
 
-        public void RegenerateVoxelVolume() => m_flags |= ChunkFlags.VoxelVolumeRegenerationRequested;
+        public void RegenerateVoxelVolume()
+        {
+            m_packedVoxelCacheValid = false;
+            m_flags |= ChunkFlags.VoxelVolumeRegenerationRequested;
+        }
 
         public void RegenerateMesh(int lod = -1)
         {
@@ -185,6 +201,7 @@ namespace Tuntenfisch.World
         {
             m_voxelVolumeCSGOperations.Add(new GPUVoxelVolumeCSGOperation(csgOperator, csgPrimitive, materialIndex, worldToObjectMatrix));
             m_flags |= ChunkFlags.CSGOperationPerformed | ChunkFlags.MeshRegenerationRequested;
+            m_packedVoxelCacheValid = false;
         }
 
         private void OnMeshGenerated(NativeArray<GPUVertex> vertices, int vertexCount, int vertexStartIndex, NativeArray<int> triangles, int triangleCount, int triangleStartIndex)
@@ -231,6 +248,98 @@ namespace Tuntenfisch.World
             m_meshRenderer = GetComponent<MeshRenderer>();
             m_meshCollider = GetComponent<MeshCollider>();
             m_onMeshGeneratedDelegate = OnMeshGenerated;
+        }
+
+        private static int VoxelsPerAxis => WorldManager.VoxelConfig.VoxelVolumeConfig.NumberOfVoxelsAlongAxis;
+
+        public bool TryGetVoxel(int3 localCoordinate, out PackedVoxel voxel)
+        {
+            voxel = default;
+
+            if (!IsLocalCoordinateInBounds(localCoordinate) || !TryAcquirePackedVoxelBuffer(out PackedVoxel[] buffer))
+            {
+                return false;
+            }
+
+            voxel = buffer[CalculateVoxelIndex(localCoordinate)];
+            return true;
+        }
+
+        public bool TrySetVoxel(int3 localCoordinate, PackedVoxel voxel)
+        {
+            if (!IsLocalCoordinateInBounds(localCoordinate) || !TryAcquirePackedVoxelBuffer(out PackedVoxel[] buffer) || m_voxelVolumeBuffer == null)
+            {
+                return false;
+            }
+
+            int index = CalculateVoxelIndex(localCoordinate);
+            buffer[index] = voxel;
+            m_voxelVolumeBuffer.SetData(buffer, index, index, 1);
+            m_flags |= ChunkFlags.MeshRegenerationRequested;
+            return true;
+        }
+
+        public void SetVoxelToAir(int3 localCoordinate)
+        {
+            TrySetVoxel(localCoordinate, PackedVoxel.Empty);
+        }
+
+        public int3 WorldToLocalVoxelCoordinate(float3 worldPosition)
+        {
+            float spacing = WorldManager.VoxelConfig.VoxelVolumeConfig.VoxelSpacing;
+            float3 offset = 0.5f * ((float3)VoxelsPerAxis - 1.0f);
+            float3 local = (worldPosition - (float3)transform.position) / spacing + offset;
+            return new int3((int)math.round(local.x), (int)math.round(local.y), (int)math.round(local.z));
+        }
+
+        private bool TryAcquirePackedVoxelBuffer(out PackedVoxel[] buffer)
+        {
+            buffer = null;
+
+            if (!EnsurePackedVoxelCache())
+            {
+                return false;
+            }
+
+            buffer = m_packedVoxelCache;
+            return true;
+        }
+
+        private bool EnsurePackedVoxelCache()
+        {
+            if (m_voxelVolumeBuffer == null)
+            {
+                return false;
+            }
+
+            int voxelCount = WorldManager.VoxelConfig.VoxelVolumeConfig.VoxelCount;
+            if (m_packedVoxelCache == null || m_packedVoxelCache.Length != voxelCount)
+            {
+                m_packedVoxelCache = new PackedVoxel[voxelCount];
+                m_packedVoxelCacheValid = false;
+            }
+
+            if (!m_packedVoxelCacheValid)
+            {
+                m_voxelVolumeBuffer.GetData(m_packedVoxelCache);
+                m_packedVoxelCacheValid = true;
+            }
+
+            return true;
+        }
+
+        private static bool IsLocalCoordinateInBounds(int3 coordinate)
+        {
+            int size = VoxelsPerAxis;
+            return coordinate.x >= 0 && coordinate.x < size &&
+                   coordinate.y >= 0 && coordinate.y < size &&
+                   coordinate.z >= 0 && coordinate.z < size;
+        }
+
+        private static int CalculateVoxelIndex(int3 coordinate)
+        {
+            int size = VoxelsPerAxis;
+            return coordinate.x + coordinate.y * size + coordinate.z * size * size;
         }
 
         private void ApplyRenderMaterial() => m_meshRenderer.material = WorldManager.VoxelConfig.MaterialConfig.RenderMaterial;

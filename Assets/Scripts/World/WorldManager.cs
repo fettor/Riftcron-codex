@@ -20,6 +20,26 @@ namespace Tuntenfisch.World
         public static VoxelConfig VoxelConfig => Instance.m_voxelConfig;
         public static VoxelVolume VoxelVolume => Instance.m_voxelVolume;
         public static DualContouring DualContouring => Instance.m_dualContouring;
+        public static float3 ChunkDimensions => Instance != null ? Instance.m_chunkDimensions : 0.0f;
+
+        public static bool TryGetChunk(int3 chunkCoordinate, out Chunk chunk)
+        {
+            chunk = null;
+            return Instance != null && Instance.m_chunks != null && Instance.m_chunks.TryGetValue(chunkCoordinate, out chunk);
+        }
+
+        public static bool TryGetChunkAtPosition(float3 worldPosition, out Chunk chunk)
+        {
+            chunk = null;
+
+            if (Instance == null)
+            {
+                return false;
+            }
+
+            int3 chunkCoordinate = Instance.CalculateChunkCoordinate(worldPosition);
+            return TryGetChunk(chunkCoordinate, out chunk);
+        }
 
         private float ViewDistanceSquared => m_lodDistancesSquared[m_lodDistancesSquared.Length - 1];
 
