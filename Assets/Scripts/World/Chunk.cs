@@ -35,6 +35,7 @@ namespace Tuntenfisch.World
         private ChunkFlags m_flags;
         private PackedVoxel[] m_packedVoxelCache;
         private bool m_packedVoxelCacheValid;
+        private static int s_overlapVoxelCount = -1;
 
         private void Awake()
         {
@@ -265,23 +266,11 @@ namespace Tuntenfisch.World
             return true;
         }
 
-        public bool TrySetVoxel(int3 localCoordinate, PackedVoxel voxel)
-        {
-            if (!IsLocalCoordinateInBounds(localCoordinate) || !TryAcquirePackedVoxelBuffer(out PackedVoxel[] buffer) || m_voxelVolumeBuffer == null)
-            {
-                return false;
-            }
-
-            int index = CalculateVoxelIndex(localCoordinate);
-            buffer[index] = voxel;
-            m_voxelVolumeBuffer.SetData(buffer, index, index, 1);
-            m_flags |= ChunkFlags.MeshRegenerationRequested;
-            return true;
-        }
+        public bool TrySetVoxel(int3 localCoordinate, PackedVoxel voxel) => TrySetVoxelInternal(localCoordinate, voxel, true);
 
         public void SetVoxelToAir(int3 localCoordinate)
         {
-            TrySetVoxel(localCoordinate, PackedVoxel.Empty);
+            TrySetVoxelInternal(localCoordinate, PackedVoxel.Empty, true);
         }
 
         public int3 WorldToLocalVoxelCoordinate(float3 worldPosition)
@@ -340,6 +329,138 @@ namespace Tuntenfisch.World
         {
             int size = VoxelsPerAxis;
             return coordinate.x + coordinate.y * size + coordinate.z * size * size;
+        }
+
+        private bool TrySetVoxelFromNeighbor(int3 localCoordinate, PackedVoxel voxel)
+        {
+            return TrySetVoxelInternal(localCoordinate, voxel, false);
+        }
+
+        private bool TrySetVoxelInternal(int3 localCoordinate, PackedVoxel voxel, bool propagateToNeighbors)
+        {
+            if (!IsLocalCoordinateInBounds(localCoordinate) || !TryAcquirePackedVoxelBuffer(out PackedVoxel[] buffer) || m_voxelVolumeBuffer == null)
+            {
+                return false;
+            }
+
+            int index = CalculateVoxelIndex(localCoordinate);
+            buffer[index] = voxel;
+            m_voxelVolumeBuffer.SetData(buffer, index, index, 1);
+            MarkVoxelDataModified();
+
+            if (propagateToNeighbors)
+            {
+                SynchronizeNeighborBorderVoxels(localCoordinate, voxel);
+            }
+
+            return true;
+        }
+
+        private void SynchronizeNeighborBorderVoxels(int3 localCoordinate, PackedVoxel voxel)
+        {
+            int overlap = OverlapVoxelCount;
+            int maxIndex = VoxelsPerAxis - 1;
+            int positiveThreshold = maxIndex - (overlap - 1);
+            int negativeThreshold = overlap - 1;
+
+            int xState = localCoordinate.x <= negativeThreshold ? -1 : (localCoordinate.x >= positiveThreshold ? 1 : 0);
+            int yState = localCoordinate.y <= negativeThreshold ? -1 : (localCoordinate.y >= positiveThreshold ? 1 : 0);
+            int zState = localCoordinate.z <= negativeThreshold ? -1 : (localCoordinate.z >= positiveThreshold ? 1 : 0);
+
+            if (xState == 0 && yState == 0 && zState == 0)
+            {
+                return;
+            }
+
+            int3 baseChunkCoordinate = WorldManager.GetChunkCoordinate((float3)transform.position);
+
+            int xIterations = xState == 0 ? 1 : 2;
+            int yIterations = yState == 0 ? 1 : 2;
+            int zIterations = zState == 0 ? 1 : 2;
+
+            for (int xi = 0; xi < xIterations; ++xi)
+            {
+                int dx = xState == 0 ? 0 : (xi == 0 ? 0 : xState);
+
+                for (int yi = 0; yi < yIterations; ++yi)
+                {
+                    int dy = yState == 0 ? 0 : (yi == 0 ? 0 : yState);
+
+                    for (int zi = 0; zi < zIterations; ++zi)
+                    {
+                        int dz = zState == 0 ? 0 : (zi == 0 ? 0 : zState);
+
+                        if (dx == 0 && dy == 0 && dz == 0)
+                        {
+                            continue;
+                        }
+
+                        int3 direction = new int3(dx, dy, dz);
+                        int3 neighborChunkCoordinate = baseChunkCoordinate + direction;
+
+                        if (!WorldManager.TryGetChunk(neighborChunkCoordinate, out Chunk neighbor))
+                        {
+                            continue;
+                        }
+
+                        int3 neighborLocalCoordinate = new int3(
+                            TransformCoordinateForNeighbor(localCoordinate.x, dx),
+                            TransformCoordinateForNeighbor(localCoordinate.y, dy),
+                            TransformCoordinateForNeighbor(localCoordinate.z, dz));
+
+                        neighbor.TrySetVoxelFromNeighbor(neighborLocalCoordinate, voxel);
+                    }
+                }
+            }
+        }
+
+        private int TransformCoordinateForNeighbor(int coordinate, int direction)
+        {
+            if (direction == 0)
+            {
+                return coordinate;
+            }
+
+            int maxIndex = VoxelsPerAxis - 1;
+            int overlap = OverlapVoxelCount;
+            int positiveStart = maxIndex - (overlap - 1);
+
+            if (direction > 0)
+            {
+                return math.clamp(coordinate - positiveStart, 0, overlap - 1);
+            }
+
+            return math.clamp(positiveStart + coordinate, positiveStart, maxIndex);
+        }
+
+        private void MarkVoxelDataModified()
+        {
+            m_flags |= ChunkFlags.MeshRegenerationRequested;
+            m_packedVoxelCacheValid = true;
+        }
+
+        private static int OverlapVoxelCount
+        {
+            get
+            {
+                if (s_overlapVoxelCount < 0)
+                {
+                    var voxelConfig = WorldManager.VoxelConfig.VoxelVolumeConfig;
+                    float spacing = math.max(voxelConfig.VoxelSpacing, 1e-4f);
+                    float chunkSpan = voxelConfig.VoxelVolumeDimensions.x;
+                    float chunkStep = WorldManager.ChunkDimensions.x;
+                    float cellOverlapFloat = (chunkSpan - chunkStep) / spacing;
+                    int cellOverlap = math.max(0, (int)math.round(cellOverlapFloat));
+                    s_overlapVoxelCount = math.max(1, cellOverlap + 1);
+                }
+
+                return s_overlapVoxelCount;
+            }
+        }
+
+        internal static void ResetCachedOverlapVoxelCount()
+        {
+            s_overlapVoxelCount = -1;
         }
 
         private void ApplyRenderMaterial() => m_meshRenderer.material = WorldManager.VoxelConfig.MaterialConfig.RenderMaterial;

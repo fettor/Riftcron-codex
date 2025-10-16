@@ -41,6 +41,11 @@ namespace Tuntenfisch.World
             return TryGetChunk(chunkCoordinate, out chunk);
         }
 
+        public static int3 GetChunkCoordinate(float3 worldPosition)
+        {
+            return Instance != null ? Instance.CalculateChunkCoordinate(worldPosition) : default;
+        }
+
         private float ViewDistanceSquared => m_lodDistancesSquared[m_lodDistancesSquared.Length - 1];
 
         [SerializeField]
@@ -93,6 +98,7 @@ namespace Tuntenfisch.World
             m_chunksToProcess = new Queue<(int3, float3, int)>();
             m_processedChunkCoordinates = new HashSet<int3>();
             m_chunkDimensions = CalculateChunkDimensions();
+            Chunk.ResetCachedOverlapVoxelCount();
 
             m_lastViewerPosition = m_viewer.position;
             m_updateIntervalSquared = math.pow(m_updateInterval, 2.0f);
@@ -306,6 +312,7 @@ namespace Tuntenfisch.World
             m_updateIntervalSquared = math.pow(m_updateInterval, 2.0f);
             m_lodDistancesSquared = CalculateLodDistancesSquared();
             m_chunkDimensions = CalculateChunkDimensions();
+            Chunk.ResetCachedOverlapVoxelCount();
 
             foreach (Chunk chunk in m_chunks.Values)
             {
