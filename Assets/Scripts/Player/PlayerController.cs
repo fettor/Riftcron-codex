@@ -29,6 +29,20 @@ namespace Tuntenfisch.Player
         [SerializeField]
         private Camera m_camera;
 
+        [Header("Flight")]
+        [Min(1.0f)]
+        [SerializeField]
+        private float m_flySpeed = 10.0f;
+        [SerializeField]
+        [Min(0.1f)]
+        private float m_flySpeedStep = 2.0f;
+        [SerializeField]
+        [Min(0.1f)]
+        private float m_minFlySpeed = 1.0f;
+        [SerializeField]
+        [Min(0.1f)]
+        private float m_maxFlySpeed = 100.0f;
+
         private CharacterController m_controller;
         private int m_playerLayerMask;
 
@@ -39,6 +53,11 @@ namespace Tuntenfisch.Player
         private float3 m_velocity;
         private bool m_primaryDown;
         private bool m_secondaryDown;
+        private bool m_flyModeEnabled;
+        private bool m_flyUpPressed;
+        private bool m_flyDownPressed;
+        private bool m_flyUpActionHeld;
+        private bool m_flyDownActionHeld;
 
         private void Start()
         {
@@ -49,6 +68,7 @@ namespace Tuntenfisch.Player
 
         private void Update()
         {
+            UpdateFlightControls();
             ApplyMovement();
             ApplyLook();
             HandleWorldInteraction();
@@ -64,8 +84,118 @@ namespace Tuntenfisch.Player
 
         public void OnSecondary(InputValue value) => m_secondaryDown = value.isPressed;
 
+        public void OnFlyMode(InputValue value)
+        {
+            if (value.isPressed)
+            {
+                m_flyModeEnabled = !m_flyModeEnabled;
+                m_flyUpPressed = false;
+                m_flyDownPressed = false;
+                m_flyUpActionHeld = false;
+                m_flyDownActionHeld = false;
+                m_wantsToJump = false;
+                m_velocity = 0.0f;
+            }
+        }
+
+        public void OnFlyUp(InputValue value) => m_flyUpActionHeld = value.isPressed;
+
+        public void OnFlyDown(InputValue value) => m_flyDownActionHeld = value.isPressed;
+
+        private void UpdateFlightControls()
+        {
+            if (!m_flyModeEnabled)
+            {
+                m_flyUpPressed = false;
+                m_flyDownPressed = false;
+                return;
+            }
+
+            bool flyUp = m_flyUpActionHeld;
+            bool flyDown = m_flyDownActionHeld;
+
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard != null)
+            {
+                flyUp = keyboard.spaceKey.isPressed;
+                flyDown = keyboard.leftShiftKey.isPressed ||
+                          keyboard.rightShiftKey.isPressed ||
+                          keyboard.leftCtrlKey.isPressed ||
+                          keyboard.rightCtrlKey.isPressed;
+            }
+
+            m_flyUpPressed = flyUp;
+            m_flyDownPressed = flyDown;
+
+            Mouse mouse = Mouse.current;
+            if (mouse == null)
+            {
+                return;
+            }
+
+            float scroll = mouse.scroll.ReadValue().y;
+            if (Mathf.Abs(scroll) <= 0.01f)
+            {
+                return;
+            }
+
+            float minSpeed = Mathf.Max(0.1f, m_minFlySpeed);
+            float maxSpeed = Mathf.Max(minSpeed, m_maxFlySpeed);
+            float speedStep = Mathf.Max(0.1f, m_flySpeedStep);
+
+            m_flySpeed = Mathf.Clamp(m_flySpeed, minSpeed, maxSpeed);
+
+            float speedDelta = scroll > 0.0f ? speedStep : -speedStep;
+            m_flySpeed = Mathf.Clamp(m_flySpeed + speedDelta, minSpeed, maxSpeed);
+        }
+
         private void ApplyMovement()
         {
+            static float3 FlattenHorizontal(Vector3 direction, Vector3 fallback, float3 worldFallback)
+            {
+                const float epsilon = 1e-5f;
+
+                float3 horizontal = new float3(direction.x, 0.0f, direction.z);
+                if (math.lengthsq(horizontal) > epsilon)
+                {
+                    return math.normalize(horizontal);
+                }
+
+                float3 fallbackHorizontal = new float3(fallback.x, 0.0f, fallback.z);
+                if (math.lengthsq(fallbackHorizontal) > epsilon)
+                {
+                    return math.normalize(fallbackHorizontal);
+                }
+
+                return worldFallback;
+            }
+
+            if (m_flyModeEnabled)
+            {
+                float3 camRight = FlattenHorizontal(m_camera.transform.right, transform.right, new float3(1.0f, 0.0f, 0.0f));
+                float3 camForward = FlattenHorizontal(m_camera.transform.forward, transform.forward, new float3(0.0f, 0.0f, 1.0f));
+                float3 moveDirection = camRight * m_moveDelta.x + camForward * m_moveDelta.y;
+
+                if (m_flyUpPressed)
+                {
+                    moveDirection += new float3(0.0f, 1.0f, 0.0f);
+                }
+
+                if (m_flyDownPressed)
+                {
+                    moveDirection += new float3(0.0f, -1.0f, 0.0f);
+                }
+
+                if (math.lengthsq(moveDirection) > 0.0f)
+                {
+                    moveDirection = math.normalize(moveDirection);
+                }
+
+                m_controller.Move((Vector3)(moveDirection * m_flySpeed * Time.deltaTime));
+                m_velocity = 0.0f;
+                return;
+            }
+
             if (m_controller.isGrounded)
             {
                 m_velocity.y = m_wantsToJump ? math.sqrt(-2.0f * Gravity * m_jumpHeight) : c_minDownwardVelocity;
