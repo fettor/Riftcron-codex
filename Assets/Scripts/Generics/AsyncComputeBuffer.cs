@@ -26,8 +26,17 @@ namespace Tuntenfisch.Generics
         public void StartReadback(int count)
         {
             ValidateCountAndStateForDataRequest(count);
-            m_requestedCount = count;
-            m_request = AsyncGPUReadback.Request(m_buffer, count * m_buffer.stride, 0);
+
+            int capacity = m_buffer.count;
+            if (capacity <= 0)
+            {
+                throw new InvalidOperationException("Cannot start a GPU readback when the source buffer has zero capacity.");
+            }
+
+            int requestCount = Mathf.Clamp(Mathf.Max(1, count), 1, capacity);
+
+            m_requestedCount = requestCount;
+            m_request = AsyncGPUReadback.Request(m_buffer, requestCount * m_buffer.stride, 0);
             m_flags |= AsyncComputeBufferFlags.ReadbackInProgress;
         }
 
@@ -47,8 +56,16 @@ namespace Tuntenfisch.Generics
                 throw new ArgumentException($"Length of parameter {nameof(array)} is too small to store the readback.");
             }
 
-            m_requestedCount = count;
-            m_request = AsyncGPUReadback.RequestIntoNativeArray(ref array, m_buffer, count * m_buffer.stride, 0);
+            int capacity = Mathf.Min(m_buffer.count, array.Length);
+            if (capacity <= 0)
+            {
+                throw new InvalidOperationException("Cannot start a GPU readback when either the source buffer or destination array has zero capacity.");
+            }
+
+            int requestCount = Mathf.Clamp(Mathf.Max(1, count), 1, capacity);
+
+            m_requestedCount = requestCount;
+            m_request = AsyncGPUReadback.RequestIntoNativeArray(ref array, m_buffer, requestCount * m_buffer.stride, 0);
             m_flags |= AsyncComputeBufferFlags.ReadbackInProgress;
         }
 
