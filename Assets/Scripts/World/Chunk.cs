@@ -55,7 +55,8 @@ namespace Tuntenfisch.World
             if ((m_flags & ChunkFlags.VoxelVolumeRegenerationRequested) == ChunkFlags.VoxelVolumeRegenerationRequested)
             {
                 m_flags &= ~ChunkFlags.VoxelVolumeRegenerationRequested;
-                WorldManager.VoxelVolume.GenerateVoxelVolume(m_voxelVolumeBuffer, transform.position);
+                ChunkGenerationBindings generationBindings = WorldManager.GetChunkGenerationBindings(transform.position);
+                WorldManager.VoxelVolume.GenerateVoxelVolume(m_voxelVolumeBuffer, transform.position, generationBindings);
             }
 
             if ((m_flags & ChunkFlags.CSGOperationPerformed) == ChunkFlags.CSGOperationPerformed)

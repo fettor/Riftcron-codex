@@ -13,6 +13,15 @@ namespace Tuntenfisch.Voxels
         public static readonly int NumberOfGenerationGraphNodes = Shader.PropertyToID("numberOfGenerationGraphNodes");
         public static readonly int NumberOfVoxels = Shader.PropertyToID("numberOfVoxels");
         public static readonly int NumberOfVoxelVolumeCSGOperations = Shader.PropertyToID("numberOfVoxelVolumeCSGOperations");
+        public static readonly int RegionSplines = Shader.PropertyToID("regionSplines");
+        public static readonly int RegionSplinesStart = Shader.PropertyToID("regionSplinesStart");
+        public static readonly int RegionSplinesCount = Shader.PropertyToID("regionSplinesCount");
+        public static readonly int RegionStamps = Shader.PropertyToID("regionStamps");
+        public static readonly int RegionStampsStart = Shader.PropertyToID("regionStampsStart");
+        public static readonly int RegionStampsCount = Shader.PropertyToID("regionStampsCount");
+        public static readonly int RegionMeta = Shader.PropertyToID("regionMeta");
+        public static readonly int ClimateTemperature = Shader.PropertyToID("climateTemperature");
+        public static readonly int ClimateMoisture = Shader.PropertyToID("climateMoisture");
         public static readonly int SchmitzParticleIterations = Shader.PropertyToID("schmitzParticleIterations");
         public static readonly int SchmitzParticleStepSize = Shader.PropertyToID("schmitzParticleStepSize");
         public static readonly int SubSampledCellVolumeFaces = Shader.PropertyToID("subSampledCellVolumeFaces");

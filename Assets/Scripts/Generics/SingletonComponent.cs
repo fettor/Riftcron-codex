@@ -11,7 +11,12 @@ namespace Tuntenfisch.Generics
             {
                 if (s_instance == null)
                 {
+
+#if UNITY_2023_1_OR_NEWER
+                    s_instance = FindFirstObjectByType<T>();
+#else
                     s_instance = FindObjectOfType<T>();
+#endif
 
                     if (s_instance == null)
                     {

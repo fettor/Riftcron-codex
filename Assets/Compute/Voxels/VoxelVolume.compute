@@ -1,6 +1,8 @@
 #pragma kernel GenerateVoxelVolume
 #pragma kernel ApplyVoxelVolumeCSGOperations
 
+#include "Assets/Compute/Voxels/Include/Contracts.hlsl"
+#include "Assets/Compute/Voxels/Include/FeatureSwitches.hlsl"
 #include "Assets/Compute/Voxels/Include/GenerationGraph.hlsl"
 #include "Assets/Compute/Voxels/Include/VoxelVolume.hlsl"
 
@@ -13,8 +15,17 @@ struct VoxelVolumeCSGOperation
 };
 
 StructuredBuffer<VoxelVolumeCSGOperation> voxelVolumeCSGOperations;
+StructuredBuffer<SplineSeg> regionSplines;
+StructuredBuffer<Stamp> regionStamps;
+StructuredBuffer<RegionMeta> regionMeta;
+Texture2D<float4> climateTemperature;
+Texture2D<float4> climateMoisture;
 
 uint numberOfVoxelVolumeCSGOperations;
+uint regionSplinesStart;
+uint regionSplinesCount;
+uint regionStampsStart;
+uint regionStampsCount;
 
 [numthreads(4, 4, 4)]
 void GenerateVoxelVolume(uint3 voxelID : SV_DispatchThreadID)

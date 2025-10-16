@@ -7,6 +7,8 @@ using Tuntenfisch.Voxels.CSG;
 using Tuntenfisch.Voxels.DC;
 using Tuntenfisch.Voxels.Materials;
 using Tuntenfisch.Voxels.Volume;
+using Tuntenfisch.World.Buffers;
+using Tuntenfisch.World.Planning;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -21,6 +23,15 @@ namespace Tuntenfisch.World
         public static VoxelVolume VoxelVolume => Instance.m_voxelVolume;
         public static DualContouring DualContouring => Instance.m_dualContouring;
         public static float3 ChunkDimensions => Instance != null ? Instance.m_chunkDimensions : 0.0f;
+        public static Transform ViewerTransform => Instance != null ? Instance.m_viewer : null;
+        public static ChunkGenerationBindings GetChunkGenerationBindings(float3 chunkWorldPosition) => Instance != null ? Instance.GetChunkGenerationBindingsInternal(chunkWorldPosition) : ChunkGenerationBindings.Empty;
+        public static void CollectRegionBufferStats(List<RegionBufferStats> stats)
+        {
+            if (Instance != null)
+            {
+                Instance.CollectRegionBufferStatsInternal(stats);
+            }
+        }
 
         public static bool TryGetChunk(int3 chunkCoordinate, out Chunk chunk)
         {
@@ -55,6 +66,8 @@ namespace Tuntenfisch.World
         [SerializeField]
         private GameObject m_chunkPrefab;
         [SerializeField]
+        private RegionPlanner m_regionPlanner;
+        [SerializeField]
         private int m_initialChunkPoolPopulation = 0;
         [SerializeField]
         private float[] m_lodDistances;
@@ -67,6 +80,7 @@ namespace Tuntenfisch.World
         private VoxelVolume m_voxelVolume;
         private DualContouring m_dualContouring;
         private CSGUtility m_csgUtility;
+        private BufferRegistry m_bufferRegistry;
         private ObjectPool<Chunk> m_chunkPool;
         private Dictionary<int3, Chunk> m_chunks;
         private List<int3> m_chunksOutsideOfViewDistance;
@@ -91,6 +105,27 @@ namespace Tuntenfisch.World
             m_voxelVolume = GetComponent<VoxelVolume>();
             m_dualContouring = GetComponent<DualContouring>();
             m_csgUtility = GetComponent<CSGUtility>();
+
+            if (m_regionPlanner == null)
+            {
+                m_regionPlanner = GetComponent<RegionPlanner>();
+            }
+
+            if (m_regionPlanner == null)
+            {
+#if UNITY_2023_1_OR_NEWER
+                m_regionPlanner = FindFirstObjectByType<RegionPlanner>();
+#else
+                m_regionPlanner = FindObjectOfType<RegionPlanner>();
+#endif
+            }
+
+            if (m_regionPlanner == null)
+            {
+                Debug.LogError($"{nameof(WorldManager)} requires a {nameof(RegionPlanner)} reference.", this);
+            }
+
+            m_bufferRegistry = new BufferRegistry();
 
             m_chunkPool = new ObjectPool<Chunk>(() => { return Instantiate(m_chunkPrefab, transform).GetComponent<Chunk>(); }, m_initialChunkPoolPopulation);
             m_chunks = new Dictionary<int3, Chunk>();
@@ -121,6 +156,9 @@ namespace Tuntenfisch.World
             m_voxelConfig.VoxelVolumeConfig.OnLateDirtied -= ApplyVoxelVolumeConfig;
             m_voxelConfig.DualContouringConfig.OnLateDirtied -= ApplyDualContouringConfig;
             m_voxelConfig.GenerationGraph.OnLateDirtied -= ApplyGenerationGraph;
+
+            m_bufferRegistry?.Dispose();
+            m_bufferRegistry = null;
         }
 
         private void OnValidate() => ApplySettings();
@@ -313,6 +351,9 @@ namespace Tuntenfisch.World
             m_lodDistancesSquared = CalculateLodDistancesSquared();
             m_chunkDimensions = CalculateChunkDimensions();
             Chunk.ResetCachedOverlapVoxelCount();
+            m_regionPlanner?.ClearCache();
+            m_bufferRegistry?.Dispose();
+            m_bufferRegistry = new BufferRegistry();
 
             foreach (Chunk chunk in m_chunks.Values)
             {
@@ -321,6 +362,76 @@ namespace Tuntenfisch.World
             m_chunks.Clear();
 
             UpdateWorld(m_viewer.position);
+        }
+
+        private ChunkGenerationBindings GetChunkGenerationBindingsInternal(float3 chunkWorldPosition)
+        {
+            if (m_regionPlanner == null || m_regionPlanner.Settings == null)
+            {
+                return ChunkGenerationBindings.Empty;
+            }
+
+            RegionKey regionKey = m_regionPlanner.Settings.GetRegionKeyFromWorldPosition(chunkWorldPosition);
+
+            if (!m_regionPlanner.TryGetPlan(regionKey, out RegionPlan plan) || plan == null)
+            {
+                return ChunkGenerationBindings.Empty;
+            }
+
+            m_bufferRegistry?.UploadRegionPlan(plan);
+
+            if (m_bufferRegistry == null)
+            {
+                return ChunkGenerationBindings.Empty;
+            }
+
+            ChunkBufferView bufferView = m_bufferRegistry.GetChunkView(regionKey);
+
+            if (!bufferView.IsValid)
+            {
+                return ChunkGenerationBindings.Empty;
+            }
+
+            Texture temperature = GetClimateTexture(plan, 0);
+            Texture moisture = GetClimateTexture(plan, 1);
+
+            return new ChunkGenerationBindings(regionKey, bufferView.Splines, bufferView.Stamps, bufferView.MetaBuffer, temperature, moisture, bufferView.Meta);
+        }
+
+        private static Texture GetClimateTexture(RegionPlan plan, int index)
+        {
+            if (plan == null)
+            {
+                return Texture2D.grayTexture;
+            }
+
+            if (index >= 0 && index < plan.ClimateTiles.Count)
+            {
+                Texture2D tile = plan.ClimateTiles[index];
+
+                if (tile != null)
+                {
+                    return tile;
+                }
+            }
+
+            return Texture2D.grayTexture;
+        }
+
+        private void CollectRegionBufferStatsInternal(List<RegionBufferStats> stats)
+        {
+            if (stats == null)
+            {
+                return;
+            }
+
+            if (m_bufferRegistry == null)
+            {
+                stats.Clear();
+                return;
+            }
+
+            m_bufferRegistry.CollectRegionStats(stats);
         }
 
         private void ApplyVoxelVolumeConfig() => ApplySettings();
