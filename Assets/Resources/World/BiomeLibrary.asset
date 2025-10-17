@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c79b91542b7848f09d52d36aa4a09d9d, type: 3}
+  m_Name: BiomeLibrary
+  m_EditorClassIdentifier: 
+  m_biomes:
+  - m_id: Temperate Plains
+    m_debugColor: {r: 0.4, g: 0.8, b: 0.3, a: 1}
+    m_climate:
+      m_temperatureCenter: 0.55
+      m_temperatureRange: 0.35
+      m_moistureCenter: 0.45
+      m_moistureRange: 0.35
+      m_weightSharpness: 2
+    m_terrain:
+      m_heightOffset: 4
+      m_baseAmplitude: 22
+      m_baseFrequency: {x: 0.0022, y: 0.0022, z: 0.0022}
+      m_warpStrength: 18
+      m_warpFrequency: {x: 0.01, y: 0.01, z: 0.01}
+  - m_id: Arid Plateau
+    m_debugColor: {r: 0.9, g: 0.7, b: 0.3, a: 1}
+    m_climate:
+      m_temperatureCenter: 0.7
+      m_temperatureRange: 0.3
+      m_moistureCenter: 0.15
+      m_moistureRange: 0.25
+      m_weightSharpness: 2.5
+    m_terrain:
+      m_heightOffset: 12
+      m_baseAmplitude: 28
+      m_baseFrequency: {x: 0.0018, y: 0.0018, z: 0.0018}
+      m_warpStrength: 12
+      m_warpFrequency: {x: 0.008, y: 0.008, z: 0.008}
+  - m_id: Boreal
+    m_debugColor: {r: 0.4, g: 0.6, b: 0.9, a: 1}
+    m_climate:
+      m_temperatureCenter: 0.35
+      m_temperatureRange: 0.4
+      m_moistureCenter: 0.6
+      m_moistureRange: 0.35
+      m_weightSharpness: 2.2
+    m_terrain:
+      m_heightOffset: 6
+      m_baseAmplitude: 26
+      m_baseFrequency: {x: 0.0026, y: 0.0026, z: 0.0026}
+      m_warpStrength: 16
+      m_warpFrequency: {x: 0.0095, y: 0.0095, z: 0.0095}
+  - m_id: Tropical Wetlands
+    m_debugColor: {r: 0.25, g: 0.55, b: 0.35, a: 1}
+    m_climate:
+      m_temperatureCenter: 0.8
+      m_temperatureRange: 0.35
+      m_moistureCenter: 0.8
+      m_moistureRange: 0.35
+      m_weightSharpness: 1.8
+    m_terrain:
+      m_heightOffset: 2
+      m_baseAmplitude: 18
+      m_baseFrequency: {x: 0.003, y: 0.003, z: 0.003}
+      m_warpStrength: 20
+      m_warpFrequency: {x: 0.012, y: 0.012, z: 0.012}

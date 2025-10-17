@@ -1,6 +1,8 @@
 #ifndef TUNTENFISCH_VOXELS_VOXEL_VOLUME
 #define TUNTENFISCH_VOXELS_VOXEL_VOLUME
 
+#include "Assets/Compute/Voxels/Include/Voxel.hlsl"
+
 RWStructuredBuffer<PackedVoxel> voxelVolume;
 
 uint3 numberOfVoxels;

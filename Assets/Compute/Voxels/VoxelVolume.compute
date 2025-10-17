@@ -3,8 +3,8 @@
 
 #include "Assets/Compute/Voxels/Include/Contracts.hlsl"
 #include "Assets/Compute/Voxels/Include/FeatureSwitches.hlsl"
-#include "Assets/Compute/Voxels/Include/GenerationGraph.hlsl"
 #include "Assets/Compute/Voxels/Include/VoxelVolume.hlsl"
+#include "Assets/Compute/Voxels/Include/CSG.hlsl"
 
 struct VoxelVolumeCSGOperation
 {
@@ -20,6 +20,17 @@ StructuredBuffer<Stamp> regionStamps;
 StructuredBuffer<RegionMeta> regionMeta;
 Texture2D<float4> climateTemperature;
 Texture2D<float4> climateMoisture;
+float2 climateUVScale;
+float2 climateUVOffset;
+
+SamplerState samplerLinearClamp
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
+
+#include "Assets/Compute/Voxels/Include/GenerationGraph.hlsl"
 
 uint numberOfVoxelVolumeCSGOperations;
 uint regionSplinesStart;

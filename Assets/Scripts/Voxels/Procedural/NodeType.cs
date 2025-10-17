@@ -10,6 +10,8 @@
         CSGPrimitive = 4,
         Material = 5,
         CSGOperation = 6,
-        Output = 7
+        Output = 7,
+        BiomeMap = 8,
+        BiomeMixer = 9
     }
 }

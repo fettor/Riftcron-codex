@@ -133,6 +133,9 @@ GameObject:
   - component: {fileID: 337836007}
   - component: {fileID: 337836006}
   - component: {fileID: 337836005}
+  - component: {fileID: 337836010}
+  - component: {fileID: 337836011}
+  - component: {fileID: 337836012}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -170,6 +173,7 @@ MonoBehaviour:
   m_viewer: {fileID: 1023658864}
   m_updateInterval: 33.5
   m_chunkPrefab: {fileID: 6443619016532032082, guid: 3605e23936cdf3f498ff9f218128ac42, type: 3}
+  m_regionPlanner: {fileID: 0}
   m_initialChunkPoolPopulation: 500
   m_lodDistances:
   - 200
@@ -234,6 +238,67 @@ MonoBehaviour:
   m_materialConfig: {fileID: 11400000, guid: 1b79f22842f5429499e846ab25f01db4, type: 2}
   m_dualContouringConfig: {fileID: 11400000, guid: 2cc13e5883318294281f7b4ae4f9ac46, type: 2}
   m_generationGraph: {fileID: 11400000, guid: cc31ddf977a6fb1439d10c0b892f3bbc, type: 2}
+--- !u!114 &337836010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337836003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3f7b0ea16645a184ab7f7e71c8345b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.World.Planning.RegionPlanner
+  m_worldSettings: {fileID: 11400000, guid: 4b3f5d3c12a1420d8e8463bfe637a7fa, type: 2}
+  m_climateProvider: {fileID: 337836011}
+--- !u!114 &337836011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337836003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab7413e9a5de4cfc9ae60fd0299b6c29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.World.Planning.ClimateProvider
+  m_tileResolution: 128
+  m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+  m_temperatureNoise:
+    m_frequency: 0.0008
+    m_octaves: 4
+    m_persistence: 1
+    m_lacunarity: 2.1
+    m_amplitude: 0.55
+  m_temperatureBias: 0
+  m_moistureNoise:
+    m_frequency: 0.001
+    m_octaves: 4
+    m_persistence: 0.8
+    m_lacunarity: 2.15
+    m_amplitude: 0.5
+  m_moistureBias: 0
+--- !u!114 &337836012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337836003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cca3f698055e4d5a9b3c71dbb594bde9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.World.WorldDebugHUD
+  m_worldManager: {fileID: 337836005}
+  m_regionPlanner: {fileID: 337836010}
+  m_viewer: {fileID: 1023658864}
+  m_toggleKey: 284
+  m_showOverlay: 1
+  m_regionGridRadius: 1
+  m_drawRegionGrid: 1
 --- !u!1 &430985030
 GameObject:
   m_ObjectHideFlags: 0

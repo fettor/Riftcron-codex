@@ -4,6 +4,7 @@
 #include "Assets/Compute/Include/Enumeration.hlsl"
 #include "Assets/Compute/Voxels/Include/Noise.hlsl"
 #include "Assets/Compute/Voxels/Include/Voxel.hlsl"
+#include "Assets/Compute/Voxels/Include/Biomes.hlsl"
 
 ENUM NodeType
 {
@@ -15,6 +16,8 @@ ENUM NodeType
     static const uint Material = 5;
     static const uint CSGOperation = 6;
     static const uint Output = 7;
+    static const uint BiomeMap = 8;
+    static const uint BiomeMixer = 9;
 };
 
 struct GenerationGraphNode
@@ -26,6 +29,8 @@ struct GenerationGraphNode
     CSGPrimitive csgPrimitive;
     uint materialIndex;
     CSGOperator csgOperator;
+    GPUBiomeMapParameters biomeMapParameters;
+    GPUBiomeMixerParameters biomeMixerParameters;
 };
 
 StructuredBuffer<GenerationGraphNode> generationGraphNodes;
@@ -90,6 +95,7 @@ Voxel EvaluateGenerationGraph(float3 position)
 {
     Voxel voxel;
     GenerationGraphStack stack = GenerationGraphStack::Create();
+    ResetBiomeContext();
 
     for (uint nodeIndex = 0; nodeIndex < numberOfGenerationGraphNodes; nodeIndex++)
     {
@@ -107,12 +113,48 @@ Voxel EvaluateGenerationGraph(float3 position)
                 break;
 
             case NodeType::DomainWarp:
-                stack.PushPosition(WarpDomain(stack.PopPosition(), node.noiseParameters));
+            {
+                float3 warpedPosition = stack.PopPosition();
+                NoiseParameters warpParameters = node.noiseParameters;
+                float mixStrength = GetBiomeMixStrength();
+                warpParameters.initialFrequency = lerp(warpParameters.initialFrequency, GetBiomeWarpFrequency(), mixStrength);
+                warpParameters.initialAmplitude = lerp(warpParameters.initialAmplitude, GetBiomeWarpStrength(), mixStrength);
+                stack.PushPosition(WarpDomain(warpedPosition, warpParameters));
                 break;
+            }
+
+            case NodeType::BiomeMap:
+            {
+                float3 samplePosition = stack.PopPosition();
+                float2 uv = samplePosition.xz * climateUVScale + climateUVOffset;
+                float temperature = SampleClimate(climateTemperature, uv);
+                float moisture = SampleClimate(climateMoisture, uv);
+                float4 weights = ComputeBiomeWeights(temperature, moisture, node.biomeMapParameters);
+                StoreBiomeWeights(weights, node.biomeMapParameters.biomeCount);
+                stack.PushPosition(samplePosition);
+                break;
+            }
+
+            case NodeType::BiomeMixer:
+            {
+                float3 passthrough = stack.PopPosition();
+                StoreBiomeMix(node.biomeMixerParameters);
+                stack.PushPosition(passthrough);
+                break;
+            }
 
             case NodeType::Noise:
-                stack.PushValueAndGradient(GenerateFBMNoise(stack.PopPosition(), node.noiseParameters));
+            {
+                float3 noisePosition = stack.PopPosition();
+                NoiseParameters baseParameters = node.noiseParameters;
+                float mixStrength = GetBiomeMixStrength();
+                baseParameters.initialFrequency = lerp(baseParameters.initialFrequency, GetBiomeBaseFrequency(), mixStrength);
+                baseParameters.initialAmplitude = lerp(baseParameters.initialAmplitude, GetBiomeBaseAmplitude(), mixStrength);
+                float4 valueAndGradient = GenerateFBMNoise(noisePosition, baseParameters);
+                valueAndGradient.x += GetBiomeHeightOffset();
+                stack.PushValueAndGradient(valueAndGradient);
                 break;
+            }
 
             case NodeType::CSGPrimitive:
                 stack.PushValueAndGradient(EvaluateCSGPrimitive(stack.PopPosition(), node.csgPrimitive));

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Tuntenfisch.World.Math;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Tuntenfisch.World.Planning
@@ -11,18 +10,19 @@ namespace Tuntenfisch.World.Planning
     /// This phase focuses on providing a stable contract; feature providers plug in later.
     /// </summary>
     [DisallowMultipleComponent]
+    [RequireComponent(typeof(ClimateProvider))]
     public sealed class RegionPlanner : MonoBehaviour
     {
         public WorldSettings Settings => m_worldSettings;
+        public ClimateProvider ClimateProvider => m_climateProvider;
         public event Action<RegionPlan> RegionPlanBuilt;
 
         [SerializeField]
         private WorldSettings m_worldSettings;
-        [SerializeField, Range(1, 512)]
-        private int m_climateTileResolution = 32;
+        [SerializeField]
+        private ClimateProvider m_climateProvider;
 
         private readonly Dictionary<RegionKey, RegionPlan> m_planCache = new Dictionary<RegionKey, RegionPlan>();
-        private readonly List<Texture2D> m_ownedTextures = new List<Texture2D>();
 
         private void Awake()
         {
@@ -30,16 +30,21 @@ namespace Tuntenfisch.World.Planning
             {
                 Debug.LogError($"{nameof(RegionPlanner)} requires a reference to {nameof(WorldSettings)}.", this);
             }
+
+            if (m_climateProvider == null)
+            {
+                m_climateProvider = GetComponent<ClimateProvider>();
+            }
+
+            if (m_climateProvider == null)
+            {
+                Debug.LogError($"{nameof(RegionPlanner)} requires a {nameof(ClimateProvider)} component.", this);
+            }
         }
 
         private void OnDestroy()
         {
-            foreach (Texture2D texture in m_ownedTextures)
-            {
-                DestroyTexture(texture);
-            }
-
-            m_ownedTextures.Clear();
+            ClearCache();
         }
 
         public bool TryGetPlan(RegionKey regionKey, out RegionPlan plan)
@@ -94,15 +99,15 @@ namespace Tuntenfisch.World.Planning
                 biomePaletteKey: 0u,
                 flags: 0u,
                 temperatureTextureHandle: 0u,
-                moistureTextureHandle: 1u);
+                moistureTextureHandle: 0u);
 
             RegionPlan plan = new RegionPlan(regionKey, meta);
             plan.AddWaterLevel(m_worldSettings.SeaLevel);
 
-            Texture2D temperatureTile = CreateClimateTileTexture(regionKey, regionSeed, 0u);
-            Texture2D moistureTile = CreateClimateTileTexture(regionKey, regionSeed, 1u);
-            plan.AddClimateTile(temperatureTile);
-            plan.AddClimateTile(moistureTile);
+            if (m_climateProvider != null)
+            {
+                m_climateProvider.PopulateClimateTiles(m_worldSettings, plan);
+            }
 
             return plan;
         }
@@ -117,42 +122,14 @@ namespace Tuntenfisch.World.Planning
             foreach (Texture2D texture in plan.ClimateTiles)
             {
                 DestroyTexture(texture);
-                m_ownedTextures.Remove(texture);
+            }
+
+            foreach (Texture2D texture in plan.BiomeWeightTiles)
+            {
+                DestroyTexture(texture);
             }
 
             plan.ClearTransientData();
-        }
-
-        private Texture2D CreateClimateTileTexture(RegionKey regionKey, uint regionSeed, uint salt)
-        {
-            int resolution = math.clamp(m_climateTileResolution, 1, 512);
-            Texture2D texture = new Texture2D(resolution, resolution, TextureFormat.RGBA32, mipChain: false, linear: true)
-            {
-                name = $"Climate_{regionKey.X}_{regionKey.Y}_{salt}",
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear,
-                hideFlags = HideFlags.HideAndDontSave
-            };
-
-            Color32[] pixels = new Color32[resolution * resolution];
-
-            for (int y = 0; y < resolution; ++y)
-            {
-                for (int x = 0; x < resolution; ++x)
-                {
-                    int index = y * resolution + x;
-                    uint sampleSeed = DeterministicRng.Hash(regionSeed, (uint)(salt * 73856093u + (uint)index));
-                    float value = DeterministicRng.Range01(sampleSeed);
-                    byte channel = (byte)math.clamp(math.round(value * 255.0f), 0.0f, 255.0f);
-                    pixels[index] = new Color32(channel, channel, channel, 255);
-                }
-            }
-
-            texture.SetPixels32(pixels);
-            texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
-
-            m_ownedTextures.Add(texture);
-            return texture;
         }
 
         private static void DestroyTexture(Texture2D texture)

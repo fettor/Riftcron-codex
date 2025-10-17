@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Tuntenfisch.Voxels
 {
@@ -22,6 +22,8 @@ namespace Tuntenfisch.Voxels
         public static readonly int RegionMeta = Shader.PropertyToID("regionMeta");
         public static readonly int ClimateTemperature = Shader.PropertyToID("climateTemperature");
         public static readonly int ClimateMoisture = Shader.PropertyToID("climateMoisture");
+        public static readonly int ClimateUvScale = Shader.PropertyToID("climateUVScale");
+        public static readonly int ClimateUvOffset = Shader.PropertyToID("climateUVOffset");
         public static readonly int SchmitzParticleIterations = Shader.PropertyToID("schmitzParticleIterations");
         public static readonly int SchmitzParticleStepSize = Shader.PropertyToID("schmitzParticleStepSize");
         public static readonly int SubSampledCellVolumeFaces = Shader.PropertyToID("subSampledCellVolumeFaces");

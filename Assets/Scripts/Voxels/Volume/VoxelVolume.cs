@@ -18,10 +18,14 @@ namespace Tuntenfisch.Voxels.Volume
         private VoxelConfig m_voxelConfig;
         private ComputeBuffer m_generationGraphNodesBuffer;
         private ComputeBuffer m_voxelVolumeCSGOperationsBuffer;
+        private int m_generateKernel = -1;
+        private int m_csgKernel = -1;
 
         private void Awake()
         {
             m_voxelConfig = GetComponent<VoxelConfig>();
+            CacheKernelIndices();
+            m_voxelConfig.GenerationGraph.Rebuild();
             m_voxelConfig.GenerationGraph.OnDirtied += ApplyGenerationGraph;
             ApplyGenerationGraph();
         }
@@ -37,6 +41,7 @@ namespace Tuntenfisch.Voxels.Volume
             if (Application.isPlaying && gameObject.activeSelf && m_voxelConfig != null)
             {
                 CreateBuffers();
+                CacheKernelIndices();
             }
         }
 
@@ -47,15 +52,21 @@ namespace Tuntenfisch.Voxels.Volume
                 throw new ArgumentNullException(nameof(voxelVolumeBuffer));
             }
 
+            EnsureKernelIndices();
+            if (!AreKernelsValid())
+            {
+                return;
+            }
+
             if (!bindings.IsValid)
             {
                 Debug.LogWarning("Chunk generation bindings are invalid. Region meta buffer missing.", this);
             }
 
             m_voxelConfig.VoxelVolumeConfig.Compute.SetVector(ComputeShaderProperties.VoxelVolumeToWorldSpaceOffset, (Vector3)worldPosition);
-            m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(0, ComputeShaderProperties.VoxelVolume, voxelVolumeBuffer);
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_generateKernel, ComputeShaderProperties.VoxelVolume, voxelVolumeBuffer);
             BindRegionData(bindings);
-            m_voxelConfig.VoxelVolumeConfig.Compute.Dispatch(0, m_voxelConfig.VoxelVolumeConfig.NumberOfVoxels);
+            m_voxelConfig.VoxelVolumeConfig.Compute.Dispatch(m_generateKernel, m_voxelConfig.VoxelVolumeConfig.NumberOfVoxels);
         }
 
         public void ApplyVoxelVolumeCSGOperations(ComputeBuffer voxelVolumeBuffer, float3 worldPosition, List<GPUVoxelVolumeCSGOperation> voxelVolumeCSGOperations)
@@ -65,13 +76,19 @@ namespace Tuntenfisch.Voxels.Volume
                 throw new ArgumentNullException(nameof(voxelVolumeBuffer));
             }
 
+            EnsureKernelIndices();
+            if (!AreKernelsValid())
+            {
+                return;
+            }
+
             if (voxelVolumeCSGOperations == null)
             {
                 throw new ArgumentNullException(nameof(voxelVolumeCSGOperations));
             }
 
             m_voxelConfig.VoxelVolumeConfig.Compute.SetVector(ComputeShaderProperties.VoxelVolumeToWorldSpaceOffset, (Vector3)worldPosition);
-            m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(1, ComputeShaderProperties.VoxelVolume, voxelVolumeBuffer);
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_csgKernel, ComputeShaderProperties.VoxelVolume, voxelVolumeBuffer);
 
             for (int index = 0; index < voxelVolumeCSGOperations.Count;)
             {
@@ -79,8 +96,8 @@ namespace Tuntenfisch.Voxels.Volume
 
                 m_voxelVolumeCSGOperationsBuffer.SetData(voxelVolumeCSGOperations, index, 0, stride);
                 m_voxelConfig.VoxelVolumeConfig.Compute.SetInt(ComputeShaderProperties.NumberOfVoxelVolumeCSGOperations, stride);
-                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(1, ComputeShaderProperties.VoxelVolumeCSGOperations, m_voxelVolumeCSGOperationsBuffer);
-                m_voxelConfig.VoxelVolumeConfig.Compute.Dispatch(1, m_voxelConfig.VoxelVolumeConfig.NumberOfVoxels);
+                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_csgKernel, ComputeShaderProperties.VoxelVolumeCSGOperations, m_voxelVolumeCSGOperationsBuffer);
+                m_voxelConfig.VoxelVolumeConfig.Compute.Dispatch(m_csgKernel, m_voxelConfig.VoxelVolumeConfig.NumberOfVoxels);
 
                 index += stride; 
             }
@@ -118,29 +135,47 @@ namespace Tuntenfisch.Voxels.Volume
 
         private void ApplyGenerationGraph()
         {
+            EnsureKernelIndices();
+            if (!AreKernelsValid())
+            {
+                return;
+            }
             CreateBuffers();
 
             m_generationGraphNodesBuffer.SetData(m_voxelConfig.GenerationGraph.Nodes);
             m_voxelConfig.VoxelVolumeConfig.Compute.SetInt(ComputeShaderProperties.NumberOfGenerationGraphNodes, m_voxelConfig.GenerationGraph.Nodes.Count);
-            m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(0, ComputeShaderProperties.GenerationGraphNodes, m_generationGraphNodesBuffer);
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_generateKernel, ComputeShaderProperties.GenerationGraphNodes, m_generationGraphNodesBuffer);
         }
 
         private void BindRegionData(in ChunkGenerationBindings bindings)
         {
+            EnsureKernelIndices();
+            if (!AreKernelsValid())
+            {
+                return;
+            }
+
             BindBufferSlice(ComputeShaderProperties.RegionSplines, ComputeShaderProperties.RegionSplinesStart, ComputeShaderProperties.RegionSplinesCount, bindings.Splines);
             BindBufferSlice(ComputeShaderProperties.RegionStamps, ComputeShaderProperties.RegionStampsStart, ComputeShaderProperties.RegionStampsCount, bindings.Stamps);
 
             if (bindings.RegionMetaBuffer != null)
             {
-                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(0, ComputeShaderProperties.RegionMeta, bindings.RegionMetaBuffer);
-                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(1, ComputeShaderProperties.RegionMeta, bindings.RegionMetaBuffer);
+                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_generateKernel, ComputeShaderProperties.RegionMeta, bindings.RegionMetaBuffer);
+                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_csgKernel, ComputeShaderProperties.RegionMeta, bindings.RegionMetaBuffer);
             }
 
             Texture temperature = bindings.TemperatureTexture != null ? bindings.TemperatureTexture : Texture2D.grayTexture;
             Texture moisture = bindings.MoistureTexture != null ? bindings.MoistureTexture : Texture2D.grayTexture;
 
-            m_voxelConfig.VoxelVolumeConfig.Compute.SetTexture(0, ComputeShaderProperties.ClimateTemperature, temperature);
-            m_voxelConfig.VoxelVolumeConfig.Compute.SetTexture(0, ComputeShaderProperties.ClimateMoisture, moisture);
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetTexture(m_generateKernel, ComputeShaderProperties.ClimateTemperature, temperature);
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetTexture(m_generateKernel, ComputeShaderProperties.ClimateMoisture, moisture);
+
+            // Apply kernels do not sample climate textures directly; no binding required there.
+
+            Vector2 uvScale = bindings.ClimateUvScale;
+            Vector2 uvOffset = bindings.ClimateUvOffset;
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetVector(ComputeShaderProperties.ClimateUvScale, new Vector4(uvScale.x, uvScale.y, 0.0f, 0.0f));
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetVector(ComputeShaderProperties.ClimateUvOffset, new Vector4(uvOffset.x, uvOffset.y, 0.0f, 0.0f));
         }
 
         private void BindBufferSlice(int bufferPropertyId, int startPropertyId, int countPropertyId, BufferSlice slice)
@@ -150,9 +185,66 @@ namespace Tuntenfisch.Voxels.Volume
 
             if (slice.Buffer != null)
             {
-                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(0, bufferPropertyId, slice.Buffer);
-                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(1, bufferPropertyId, slice.Buffer);
+                EnsureKernelIndices();
+                if (!AreKernelsValid())
+                {
+                    return;
+                }
+                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_generateKernel, bufferPropertyId, slice.Buffer);
+                m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_csgKernel, bufferPropertyId, slice.Buffer);
             }
+        }
+
+        private void CacheKernelIndices()
+        {
+            ComputeShader compute = m_voxelConfig != null ? m_voxelConfig.VoxelVolumeConfig.Compute : null;
+
+            if (compute == null)
+            {
+                Debug.LogWarning("VoxelVolumeConfig is missing a compute shader reference.", this);
+                m_generateKernel = m_csgKernel = -1;
+                return;
+            }
+
+            m_generateKernel = compute.FindKernel("GenerateVoxelVolume");
+            m_csgKernel = compute.FindKernel("ApplyVoxelVolumeCSGOperations");
+
+            if (m_generateKernel < 0 || m_csgKernel < 0)
+            {
+                Debug.LogError("Failed to locate voxel volume compute kernels.", this);
+                m_generateKernel = m_csgKernel = -1;
+                return;
+            }
+
+            try
+            {
+                compute.GetKernelThreadGroupSizes(m_generateKernel, out _, out _, out _);
+                compute.GetKernelThreadGroupSizes(m_csgKernel, out _, out _, out _);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"VoxelVolume kernels could not query thread group sizes. Ensure the compute shader compiles without errors. {exception.Message}", this);
+                m_generateKernel = m_csgKernel = -1;
+            }
+        }
+
+        private void EnsureKernelIndices()
+        {
+            if (m_generateKernel < 0 || m_csgKernel < 0)
+            {
+                CacheKernelIndices();
+            }
+        }
+
+        private bool AreKernelsValid()
+        {
+            if (m_generateKernel < 0 || m_csgKernel < 0)
+            {
+                Debug.LogError("Voxel volume compute kernels are not initialised.", this);
+                return false;
+            }
+
+            return true;
         }
     }
 }

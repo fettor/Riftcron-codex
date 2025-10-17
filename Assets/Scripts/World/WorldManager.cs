@@ -395,7 +395,18 @@ namespace Tuntenfisch.World
             Texture temperature = GetClimateTexture(plan, 0);
             Texture moisture = GetClimateTexture(plan, 1);
 
-            return new ChunkGenerationBindings(regionKey, bufferView.Splines, bufferView.Stamps, bufferView.MetaBuffer, temperature, moisture, bufferView.Meta);
+            float3 regionDimensions = m_regionPlanner.Settings.GetRegionDimensionsInWorldUnits();
+            float2 regionSize = new float2(regionDimensions.x, regionDimensions.z);
+            float2 scale = new float2(
+                regionSize.x > math.EPSILON ? 1.0f / regionSize.x : 0.0f,
+                regionSize.y > math.EPSILON ? 1.0f / regionSize.y : 0.0f);
+            float2 origin = new float2(regionKey.X, regionKey.Y) * regionSize;
+            float2 offset = -origin * scale;
+
+            Vector2 climateUvScale = new Vector2(scale.x, scale.y);
+            Vector2 climateUvOffset = new Vector2(offset.x, offset.y);
+
+            return new ChunkGenerationBindings(regionKey, bufferView.Splines, bufferView.Stamps, bufferView.MetaBuffer, temperature, moisture, climateUvScale, climateUvOffset, bufferView.Meta);
         }
 
         private static Texture GetClimateTexture(RegionPlan plan, int index)

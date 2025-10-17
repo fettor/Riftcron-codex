@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Tuntenfisch.World.Planning;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace Tuntenfisch.World
         public IReadOnlyList<Stamp> Stamps => m_stamps;
         public IReadOnlyList<Texture2D> ClimateTiles => m_climateTiles;
         public IReadOnlyList<TownPlan> Towns => m_towns;
+        public IReadOnlyList<Texture2D> BiomeWeightTiles => m_biomeWeightTiles;
         public IReadOnlyList<float> WaterLevels => m_waterLevels;
         internal List<SplineSeg> MutableSplines => m_splines;
         internal List<Stamp> MutableStamps => m_stamps;
@@ -42,6 +44,7 @@ namespace Tuntenfisch.World
             m_splines.Clear();
             m_stamps.Clear();
             m_climateTiles.Clear();
+            m_biomeWeightTiles.Clear();
             m_towns.Clear();
             m_waterLevels.Clear();
         }
@@ -49,6 +52,7 @@ namespace Tuntenfisch.World
         public void AddSpline(in SplineSeg spline) => m_splines.Add(spline);
         public void AddStamp(in Stamp stamp) => m_stamps.Add(stamp);
         public void AddClimateTile(Texture2D tile) => m_climateTiles.Add(tile);
+        public void AddBiomeWeightTile(Texture2D tile) => m_biomeWeightTiles.Add(tile);
         public void AddTown(TownPlan town) => m_towns.Add(town);
         public void AddWaterLevel(float height) => m_waterLevels.Add(height);
 
@@ -62,6 +66,8 @@ namespace Tuntenfisch.World
         private readonly List<Stamp> m_stamps = new List<Stamp>();
         [SerializeField]
         private readonly List<Texture2D> m_climateTiles = new List<Texture2D>(2);
+        [SerializeField]
+        private readonly List<Texture2D> m_biomeWeightTiles = new List<Texture2D>(BiomeLibrary.MaxBiomeCount);
         [SerializeField]
         private readonly List<TownPlan> m_towns = new List<TownPlan>();
         [SerializeField]
