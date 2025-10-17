@@ -24,9 +24,15 @@ MonoBehaviour:
     m_terrain:
       m_heightOffset: 4
       m_baseAmplitude: 22
-      m_baseFrequency: {x: 0.0022, y: 0.0022, z: 0.0022}
+      m_baseFrequency:
+        x: 0.0022
+        y: 0.0022
+        z: 0.0022
       m_warpStrength: 18
-      m_warpFrequency: {x: 0.01, y: 0.01, z: 0.01}
+      m_warpFrequency:
+        x: 0.01
+        y: 0.01
+        z: 0.01
   - m_id: Arid Plateau
     m_debugColor: {r: 0.9, g: 0.7, b: 0.3, a: 1}
     m_climate:
@@ -38,9 +44,15 @@ MonoBehaviour:
     m_terrain:
       m_heightOffset: 12
       m_baseAmplitude: 28
-      m_baseFrequency: {x: 0.0018, y: 0.0018, z: 0.0018}
+      m_baseFrequency:
+        x: 0.0018
+        y: 0.0018
+        z: 0.0018
       m_warpStrength: 12
-      m_warpFrequency: {x: 0.008, y: 0.008, z: 0.008}
+      m_warpFrequency:
+        x: 0.008
+        y: 0.008
+        z: 0.008
   - m_id: Boreal
     m_debugColor: {r: 0.4, g: 0.6, b: 0.9, a: 1}
     m_climate:
@@ -52,9 +64,15 @@ MonoBehaviour:
     m_terrain:
       m_heightOffset: 6
       m_baseAmplitude: 26
-      m_baseFrequency: {x: 0.0026, y: 0.0026, z: 0.0026}
+      m_baseFrequency:
+        x: 0.0026
+        y: 0.0026
+        z: 0.0026
       m_warpStrength: 16
-      m_warpFrequency: {x: 0.0095, y: 0.0095, z: 0.0095}
+      m_warpFrequency:
+        x: 0.0095
+        y: 0.0095
+        z: 0.0095
   - m_id: Tropical Wetlands
     m_debugColor: {r: 0.25, g: 0.55, b: 0.35, a: 1}
     m_climate:
@@ -66,6 +84,12 @@ MonoBehaviour:
     m_terrain:
       m_heightOffset: 2
       m_baseAmplitude: 18
-      m_baseFrequency: {x: 0.003, y: 0.003, z: 0.003}
+      m_baseFrequency:
+        x: 0.003
+        y: 0.003
+        z: 0.003
       m_warpStrength: 20
-      m_warpFrequency: {x: 0.012, y: 0.012, z: 0.012}
+      m_warpFrequency:
+        x: 0.012
+        y: 0.012
+        z: 0.012

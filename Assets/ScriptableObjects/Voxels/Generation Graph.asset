@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &-9008572940600171931
 MonoBehaviour:
@@ -22,7 +22,7 @@ MonoBehaviour:
     values:
     - _fieldName: m_voxelA
       _node: {fileID: -9008572940600171931}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxel
@@ -34,7 +34,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxelB
       _node: {fileID: -9008572940600171931}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxel
@@ -46,7 +46,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxel
       _node: {fileID: -9008572940600171931}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxelA
@@ -71,6 +71,50 @@ MonoBehaviour:
   m_csgOperator:
     m_operatorIndex: 3
     m_smoothing: 20
+--- !u!114 &-7233544756559883317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8524e7576fb146baa576322de2dcfb19, type: 3}
+  m_Name: Biome Mixer
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Procedural.BiomeMixerNode
+  graph: {fileID: 11400000}
+  position: {x: -1080, y: 168}
+  ports:
+    keys:
+    - m_position
+    - m_output
+    values:
+    - _fieldName: m_position
+      _node: {fileID: -7233544756559883317}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_output
+        node: {fileID: 4183292958871147679}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 2
+      _dynamic: 0
+    - _fieldName: m_output
+      _node: {fileID: -7233544756559883317}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 2
+      _dynamic: 0
+  m_position: 0
+  m_output: 0
+  m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+  m_mixStrength: 1
 --- !u!114 &-6033972957997777016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,8 +139,8 @@ MonoBehaviour:
       _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
-      - fieldName: m_transformedPosition
-        node: {fileID: -1411315570092343662}
+      - fieldName: m_output
+        node: {fileID: 3082442564664020759}
         reroutePoints: []
       _direction: 0
       _connectionType: 1
@@ -104,7 +148,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_valueAndGradient
       _node: {fileID: -6033972957997777016}
-      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_valueAndGradient
@@ -133,6 +177,53 @@ MonoBehaviour:
       x: 2
       y: 2
       z: 2
+--- !u!114 &-5024580299425895458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7c69f2d74144c3ea7bc1ff46af0d06d, type: 3}
+  m_Name: Biome Map
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Procedural.BiomeMapNode
+  graph: {fileID: 11400000}
+  position: {x: -1160, y: -552}
+  ports:
+    keys:
+    - m_position
+    - m_output
+    values:
+    - _fieldName: m_position
+      _node: {fileID: -5024580299425895458}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_transformedPosition
+        node: {fileID: -1411315570092343662}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 2
+      _dynamic: 0
+    - _fieldName: m_output
+      _node: {fileID: -5024580299425895458}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_position
+        node: {fileID: 3082442564664020759}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 2
+      _dynamic: 0
+  m_position: 0
+  m_output: 0
+  m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+  m_weightGain: 1
 --- !u!114 &-4801048335892674458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,8 +248,8 @@ MonoBehaviour:
       _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
-      - fieldName: m_position
-        node: {fileID: 2144961217543914969}
+      - fieldName: m_output
+        node: {fileID: 3082442564664020759}
         reroutePoints: []
       _direction: 0
       _connectionType: 1
@@ -166,7 +257,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_valueAndGradient
       _node: {fileID: -4801048335892674458}
-      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_valueAndGradient
@@ -215,7 +306,7 @@ MonoBehaviour:
     values:
     - _fieldName: m_voxel
       _node: {fileID: -4527227182196153878}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxel
@@ -242,7 +333,7 @@ MonoBehaviour:
   m_Name: Transform
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -968, y: 152}
+  position: {x: -1608, y: 120}
   ports:
     keys:
     - m_position
@@ -266,7 +357,7 @@ MonoBehaviour:
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: m_position
-        node: {fileID: 9117170654364883070}
+        node: {fileID: 4183292958871147679}
         reroutePoints: []
       _direction: 1
       _connectionType: 1
@@ -308,7 +399,7 @@ MonoBehaviour:
     values:
     - _fieldName: m_valueAndGradient
       _node: {fileID: -2876368145125359047}
-      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_valueAndGradient
@@ -320,7 +411,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxel
       _node: {fileID: -2876368145125359047}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxelA
@@ -359,7 +450,7 @@ MonoBehaviour:
     values:
     - _fieldName: m_valueAndGradient
       _node: {fileID: -1847638076584077637}
-      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_valueAndGradient
@@ -371,7 +462,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxel
       _node: {fileID: -1847638076584077637}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxelB
@@ -411,7 +502,7 @@ MonoBehaviour:
     values:
     - _fieldName: m_voxelA
       _node: {fileID: -1748796865420827563}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxel
@@ -423,7 +514,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxelB
       _node: {fileID: -1748796865420827563}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxel
@@ -435,7 +526,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxel
       _node: {fileID: -1748796865420827563}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxel
@@ -473,7 +564,7 @@ MonoBehaviour:
   m_Name: Transform
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -680, y: -520}
+  position: {x: -1416, y: -568}
   ports:
     keys:
     - m_position
@@ -497,7 +588,7 @@ MonoBehaviour:
         PublicKeyToken=b77a5c561934e089
       connections:
       - fieldName: m_position
-        node: {fileID: -6033972957997777016}
+        node: {fileID: -5024580299425895458}
         reroutePoints: []
       _direction: 1
       _connectionType: 1
@@ -546,6 +637,10 @@ MonoBehaviour:
   - {fileID: 2363233083579071820}
   - {fileID: -3082375377624245464}
   - {fileID: 9117170654364883070}
+  - {fileID: -5024580299425895458}
+  - {fileID: 3082442564664020759}
+  - {fileID: 4183292958871147679}
+  - {fileID: -7233544756559883317}
   m_nodes:
   - m_nodeType: 0
     m_transformMatrix:
@@ -586,6 +681,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 1
     m_transformMatrix:
       e00: 1
@@ -625,6 +742,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 3
     m_transformMatrix:
       e00: 1
@@ -664,6 +803,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 5
     m_transformMatrix:
       e00: 1
@@ -703,6 +864,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 0
     m_transformMatrix:
       e00: 1
@@ -742,6 +925,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 3
     m_transformMatrix:
       e00: 1
@@ -781,6 +986,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 5
     m_transformMatrix:
       e00: 1
@@ -820,6 +1047,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 6
     m_transformMatrix:
       e00: 1
@@ -859,6 +1108,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 3
       m_smoothing: 20
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 0
     m_transformMatrix:
       e00: 1
@@ -898,6 +1169,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 1
     m_transformMatrix:
       e00: 1
@@ -937,6 +1230,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 2
     m_transformMatrix:
       e00: 1
@@ -976,6 +1291,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 3
     m_transformMatrix:
       e00: 1
@@ -1015,6 +1352,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 5
     m_transformMatrix:
       e00: 1
@@ -1054,6 +1413,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 6
     m_transformMatrix:
       e00: 1
@@ -1093,201 +1474,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 4
       m_smoothing: 5
-  - m_nodeType: 0
-    m_transformMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_noiseParameters:
-      m_seed: 0
-      m_noiseAxes: 0
-      m_noiseType: 0
-      m_numberOfOctaves: 0
-      m_initialAmplitude: 0
-      m_initialFrequency:
-        x: 0
-        y: 0
-        z: 0
-      m_persistence: 0
-      m_lacunarity:
-        x: 0
-        y: 0
-        z: 0
-    m_csgPrimitive:
-      m_primitiveType: 0
-    m_materialIndex: 0
-    m_csgOperator:
-      m_operatorIndex: 0
-      m_smoothing: 0
-  - m_nodeType: 1
-    m_transformMatrix:
-      e00: 0.1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 0.1
-      e12: 0
-      e13: -1
-      e20: 0
-      e21: 0
-      e22: 0.1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_noiseParameters:
-      m_seed: 0
-      m_noiseAxes: 0
-      m_noiseType: 0
-      m_numberOfOctaves: 0
-      m_initialAmplitude: 0
-      m_initialFrequency:
-        x: 0
-        y: 0
-        z: 0
-      m_persistence: 0
-      m_lacunarity:
-        x: 0
-        y: 0
-        z: 0
-    m_csgPrimitive:
-      m_primitiveType: 0
-    m_materialIndex: 0
-    m_csgOperator:
-      m_operatorIndex: 0
-      m_smoothing: 0
-  - m_nodeType: 4
-    m_transformMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_noiseParameters:
-      m_seed: 0
-      m_noiseAxes: 0
-      m_noiseType: 0
-      m_numberOfOctaves: 0
-      m_initialAmplitude: 0
-      m_initialFrequency:
-        x: 0
-        y: 0
-        z: 0
-      m_persistence: 0
-      m_lacunarity:
-        x: 0
-        y: 0
-        z: 0
-    m_csgPrimitive:
-      m_primitiveType: 1
-    m_materialIndex: 0
-    m_csgOperator:
-      m_operatorIndex: 0
-      m_smoothing: 0
-  - m_nodeType: 5
-    m_transformMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_noiseParameters:
-      m_seed: 0
-      m_noiseAxes: 0
-      m_noiseType: 0
-      m_numberOfOctaves: 0
-      m_initialAmplitude: 0
-      m_initialFrequency:
-        x: 0
-        y: 0
-        z: 0
-      m_persistence: 0
-      m_lacunarity:
-        x: 0
-        y: 0
-        z: 0
-    m_csgPrimitive:
-      m_primitiveType: 0
-    m_materialIndex: 0
-    m_csgOperator:
-      m_operatorIndex: 0
-      m_smoothing: 0
-  - m_nodeType: 6
-    m_transformMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_noiseParameters:
-      m_seed: 0
-      m_noiseAxes: 0
-      m_noiseType: 0
-      m_numberOfOctaves: 0
-      m_initialAmplitude: 0
-      m_initialFrequency:
-        x: 0
-        y: 0
-        z: 0
-      m_persistence: 0
-      m_lacunarity:
-        x: 0
-        y: 0
-        z: 0
-    m_csgPrimitive:
-      m_primitiveType: 0
-    m_materialIndex: 0
-    m_csgOperator:
-      m_operatorIndex: 0
-      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
   - m_nodeType: 7
     m_transformMatrix:
       e00: 1
@@ -1327,6 +1535,28 @@ MonoBehaviour:
     m_csgOperator:
       m_operatorIndex: 0
       m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
 --- !u!114 &281790846129076961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1340,7 +1570,7 @@ MonoBehaviour:
   m_Name: Position
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -904, y: -520}
+  position: {x: -1704, y: -568}
   ports:
     keys:
     - m_position
@@ -1371,7 +1601,7 @@ MonoBehaviour:
   m_Name: Position
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -680, y: -184}
+  position: {x: -1416, y: -216}
   ports:
     keys:
     - m_position
@@ -1380,10 +1610,7 @@ MonoBehaviour:
       _node: {fileID: 2144961217543914969}
       _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
-      connections:
-      - fieldName: m_position
-        node: {fileID: -4801048335892674458}
-        reroutePoints: []
+      connections: []
       _direction: 1
       _connectionType: 1
       _typeConstraint: 2
@@ -1402,7 +1629,7 @@ MonoBehaviour:
   m_Name: Position
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -1192, y: 152}
+  position: {x: -1832, y: 120}
   ports:
     keys:
     - m_position
@@ -1420,6 +1647,59 @@ MonoBehaviour:
       _typeConstraint: 2
       _dynamic: 0
   m_position: 0
+--- !u!114 &3082442564664020759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8524e7576fb146baa576322de2dcfb19, type: 3}
+  m_Name: Biome Mixer
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Procedural.BiomeMixerNode
+  graph: {fileID: 11400000}
+  position: {x: -840, y: -552}
+  ports:
+    keys:
+    - m_position
+    - m_output
+    values:
+    - _fieldName: m_position
+      _node: {fileID: 3082442564664020759}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_output
+        node: {fileID: -5024580299425895458}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 2
+      _dynamic: 0
+    - _fieldName: m_output
+      _node: {fileID: 3082442564664020759}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_position
+        node: {fileID: -6033972957997777016}
+        reroutePoints: []
+      - fieldName: m_position
+        node: {fileID: -4801048335892674458}
+        reroutePoints: []
+      - fieldName: m_position
+        node: {fileID: 9117170654364883070}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 2
+      _dynamic: 0
+  m_position: 0
+  m_output: 0
+  m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+  m_mixStrength: 1
 --- !u!114 &3386780224256037567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1453,7 +1733,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_valueAndGradient
       _node: {fileID: 3386780224256037567}
-      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_valueAndGradient
@@ -1482,6 +1762,53 @@ MonoBehaviour:
       x: 2
       y: 2
       z: 2
+--- !u!114 &4183292958871147679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7c69f2d74144c3ea7bc1ff46af0d06d, type: 3}
+  m_Name: Biome Map
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Procedural.BiomeMapNode
+  graph: {fileID: 11400000}
+  position: {x: -1352, y: 152}
+  ports:
+    keys:
+    - m_position
+    - m_output
+    values:
+    - _fieldName: m_position
+      _node: {fileID: 4183292958871147679}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_transformedPosition
+        node: {fileID: -3082375377624245464}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 2
+      _dynamic: 0
+    - _fieldName: m_output
+      _node: {fileID: 4183292958871147679}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections:
+      - fieldName: m_position
+        node: {fileID: -7233544756559883317}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 2
+      _dynamic: 0
+  m_position: 0
+  m_output: 0
+  m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+  m_weightGain: 1
 --- !u!114 &8934352735056946585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1503,7 +1830,7 @@ MonoBehaviour:
     values:
     - _fieldName: m_valueAndGradient
       _node: {fileID: 8934352735056946585}
-      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float2, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_valueAndGradient
@@ -1515,7 +1842,7 @@ MonoBehaviour:
       _dynamic: 0
     - _fieldName: m_voxel
       _node: {fileID: 8934352735056946585}
-      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=1.0.0.0,
+      _typeQualifiedName: Unity.Mathematics.float3, Unity.Mathematics, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections:
       - fieldName: m_voxelB
@@ -1557,8 +1884,8 @@ MonoBehaviour:
       _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
       connections:
-      - fieldName: m_transformedPosition
-        node: {fileID: -3082375377624245464}
+      - fieldName: m_output
+        node: {fileID: 3082442564664020759}
         reroutePoints: []
       _direction: 0
       _connectionType: 1

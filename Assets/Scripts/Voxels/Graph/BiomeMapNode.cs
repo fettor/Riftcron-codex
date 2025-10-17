@@ -15,7 +15,7 @@ namespace Tuntenfisch.Voxels.Procedural
         [SerializeField]
         private float m_position;
 
-        [Output(backingValue = ShowBackingValue.Never, connectionType = ConnectionType.Override, typeConstraint = TypeConstraint.Strict)]
+        [Output(backingValue = ShowBackingValue.Never, connectionType = ConnectionType.Multiple, typeConstraint = TypeConstraint.Strict)]
         [SerializeField]
         private float m_output;
 
