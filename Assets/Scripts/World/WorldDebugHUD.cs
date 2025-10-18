@@ -130,7 +130,11 @@ namespace Tuntenfisch.World
                     int regionX = centerRegion.X + dx;
                     int regionY = centerRegion.Y + dz;
 
-                    float3 minCorner = new float3(regionX * regionWidth, 0.0f, regionY * regionDepth);
+                    float3 chunkDimensions = WorldManager.ChunkDimensions;
+                    float halfChunkWidth = math.max(0.0f, 0.5f * chunkDimensions.x);
+                    float halfChunkDepth = math.max(0.0f, 0.5f * chunkDimensions.z);
+
+                    float3 minCorner = new float3(regionX * regionWidth - halfChunkWidth, 0.0f, regionY * regionDepth - halfChunkDepth);
                     float3 center = minCorner + new float3(0.5f * regionWidth, 0.5f * regionHeight, 0.5f * regionDepth);
                     float3 size = new float3(regionWidth, regionHeight, regionDepth);
 
