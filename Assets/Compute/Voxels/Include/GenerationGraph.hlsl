@@ -115,11 +115,51 @@ Voxel EvaluateGenerationGraph(float3 position)
             case NodeType::DomainWarp:
             {
                 float3 warpedPosition = stack.PopPosition();
-                NoiseParameters warpParameters = node.noiseParameters;
-                float mixStrength = GetBiomeMixStrength();
-                warpParameters.initialFrequency = lerp(warpParameters.initialFrequency, GetBiomeWarpFrequency(), mixStrength);
-                warpParameters.initialAmplitude = lerp(warpParameters.initialAmplitude, GetBiomeWarpStrength(), mixStrength);
-                stack.PushPosition(WarpDomain(warpedPosition, warpParameters));
+                NoiseParameters baseParameters = node.noiseParameters;
+                float3 baseOffset = EvaluateWarpOffset(warpedPosition, baseParameters);
+                float warpMix = GetBiomeWarpMixStrength();
+                uint biomeCount = GetBiomeCount();
+
+                if (warpMix > 1e-3f && biomeCount > 0u)
+                {
+                    float attenuation = GetBiomeWarpAttenuation();
+                    float3 biomeOffset = 0.0f;
+                    float contributionSum = 0.0f;
+
+                    [unroll]
+                    for (uint i = 0u; i < 4u; ++i)
+                    {
+                        float contribution = GetBiomeWeightMasked(i);
+
+                        if (contribution <= 1e-4f)
+                        {
+                            continue;
+                        }
+
+                        NoiseParameters biomeParameters = baseParameters;
+                        biomeParameters.initialAmplitude = GetBiomeWarpStrength(i) * attenuation;
+                        biomeParameters.initialFrequency = GetBiomeWarpFrequency(i);
+                        float3 offset = EvaluateWarpOffset(warpedPosition, biomeParameters);
+                        biomeOffset += offset * contribution;
+                        contributionSum += contribution;
+                    }
+
+                    if (contributionSum > 1e-4f)
+                    {
+                        biomeOffset /= contributionSum;
+                    }
+                    else
+                    {
+                        biomeOffset = baseOffset;
+                    }
+
+                    float3 finalOffset = lerp(baseOffset, biomeOffset, warpMix);
+                    stack.PushPosition(warpedPosition + finalOffset);
+                }
+                else
+                {
+                    stack.PushPosition(warpedPosition + baseOffset);
+                }
                 break;
             }
 
@@ -147,12 +187,42 @@ Voxel EvaluateGenerationGraph(float3 position)
             {
                 float3 noisePosition = stack.PopPosition();
                 NoiseParameters baseParameters = node.noiseParameters;
+                float4 baseValue = GenerateFBMNoise(noisePosition, baseParameters);
                 float mixStrength = GetBiomeMixStrength();
-                baseParameters.initialFrequency = lerp(baseParameters.initialFrequency, GetBiomeBaseFrequency(), mixStrength);
-                baseParameters.initialAmplitude = lerp(baseParameters.initialAmplitude, GetBiomeBaseAmplitude(), mixStrength);
-                float4 valueAndGradient = GenerateFBMNoise(noisePosition, baseParameters);
-                valueAndGradient.x += GetBiomeHeightOffset();
-                stack.PushValueAndGradient(valueAndGradient);
+                uint biomeCount = GetBiomeCount();
+
+                if (mixStrength > 1e-3f && biomeCount > 0u)
+                {
+                    float4 blendedValue = 0.0f;
+                    float weightSum = 0.0f;
+
+                    [unroll]
+                    for (uint i = 0u; i < 4u; ++i)
+                    {
+                        float contribution = GetBiomeWeightMasked(i);
+
+                        if (contribution <= 1e-4f)
+                        {
+                            continue;
+                        }
+
+                        NoiseParameters biomeParameters = baseParameters;
+                        biomeParameters.initialAmplitude = GetBiomeBaseAmplitude(i);
+                        biomeParameters.initialFrequency = GetBiomeBaseFrequency(i);
+                        float4 sample = GenerateFBMNoise(noisePosition, biomeParameters);
+                        blendedValue += sample * contribution;
+                        weightSum += contribution;
+                    }
+
+                    if (weightSum > 1e-4f)
+                    {
+                        blendedValue /= weightSum;
+                        baseValue = lerp(baseValue, blendedValue, mixStrength);
+                    }
+                }
+
+                baseValue.x += GetBiomeHeightOffset();
+                stack.PushValueAndGradient(baseValue);
                 break;
             }
 

@@ -151,22 +151,27 @@ float4 GenerateFBMNoise(float3 position, NoiseParameters noiseParameters)
     return valueAndGradient;
 }
 
-float3 WarpDomain(float3 position, NoiseParameters noiseParameters)
+float3 EvaluateWarpOffset(float3 position, NoiseParameters noiseParameters)
 {
     const float3 offset = float3(500.0f, 1000.0f, 1500.0f);
 
-    float3 value = 0.0f;
+    float3 displacement = 0.0f;
 
     // Add a random offset to the position so the values for x, y and z aren't all the same.
-    value.x = GenerateFBMNoise(position + offset, noiseParameters).x;
+    displacement.x = GenerateFBMNoise(position + offset, noiseParameters).x;
 
     if (noiseParameters.noiseAxes != NoiseAxes::XZ)
     {
-        value.y = GenerateFBMNoise(position, noiseParameters).x;
+        displacement.y = GenerateFBMNoise(position, noiseParameters).x;
     }
-    value.z = GenerateFBMNoise(position - offset, noiseParameters).x;
+    displacement.z = GenerateFBMNoise(position - offset, noiseParameters).x;
 
-    return position + value;
+    return displacement;
+}
+
+float3 WarpDomain(float3 position, NoiseParameters noiseParameters)
+{
+    return position + EvaluateWarpOffset(position, noiseParameters);
 }
 
 #endif
