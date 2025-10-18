@@ -55,10 +55,12 @@ namespace Tuntenfisch.World.Planning
             int resolution = TileResolution;
             RegionKey regionKey = plan.RegionKey;
 
-            uint regionSeed = settings.GetRegionSeed(regionKey, 0xC1FCE55Du);
+            uint worldSeedMixed = DeterministicRng.Hash((uint)settings.WorldSeed, 0xC1FCE55Du);
             float3 regionDimensions = settings.GetRegionDimensionsInWorldUnits();
             float2 regionSize = new float2(regionDimensions.x, regionDimensions.z);
-            float2 regionOrigin = new float2(regionKey.X * regionSize.x, regionKey.Y * regionSize.y);
+            float chunkWidth = settings.ChunkDimensionsInBlocks.x * settings.MetersPerUnit;
+            float chunkDepth = settings.ChunkDimensionsInBlocks.z * settings.MetersPerUnit;
+            float2 regionOrigin = new float2(regionKey.X * regionSize.x - 0.5f * chunkWidth, regionKey.Y * regionSize.y - 0.5f * chunkDepth);
 
             Color[] temperaturePixels = new Color[resolution * resolution];
             Color[] moisturePixels = new Color[resolution * resolution];
@@ -86,12 +88,12 @@ namespace Tuntenfisch.World.Planning
                     float2 uv = new float2((x + 0.5f) / resolution, (y + 0.5f) / resolution);
                     float2 worldXZ = regionOrigin + uv * regionSize;
 
-                    float temperature = EvaluateField(worldXZ, regionSeed, m_temperatureNoise, 0xFA16C10Bu, m_temperatureBias);
+                    float temperature = EvaluateField(worldXZ, worldSeedMixed, m_temperatureNoise, 0xFA16C10Bu, m_temperatureBias);
                     // Subtle latitudinal gradient (z points "north").
                     float latitudeFactor = 0.5f * (worldXZ.y * latitudeScale);
                     temperature = math.saturate(temperature + latitudeFactor);
 
-                    float moisture = EvaluateField(worldXZ, regionSeed, m_moistureNoise, 0x8F3CF311u, m_moistureBias);
+                    float moisture = EvaluateField(worldXZ, worldSeedMixed, m_moistureNoise, 0x8F3CF311u, m_moistureBias);
                     moisture = math.saturate(moisture);
 
                     temperaturePixels[index] = EncodeSingleChannel(temperature);

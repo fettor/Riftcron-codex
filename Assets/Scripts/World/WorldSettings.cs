@@ -33,8 +33,10 @@ namespace Tuntenfisch.World
         public RegionKey GetRegionKeyFromWorldPosition(float3 worldPosition)
         {
             float3 regionDimensions = GetRegionDimensionsInWorldUnits();
-            int regionX = Mathf.FloorToInt(worldPosition.x / regionDimensions.x);
-            int regionY = Mathf.FloorToInt(worldPosition.z / regionDimensions.z);
+            float chunkWidth = m_chunkSizeInBlocks.x * m_metersPerUnit;
+            float chunkDepth = m_chunkSizeInBlocks.z * m_metersPerUnit;
+            int regionX = Mathf.FloorToInt((worldPosition.x + 0.5f * chunkWidth) / regionDimensions.x);
+            int regionY = Mathf.FloorToInt((worldPosition.z + 0.5f * chunkDepth) / regionDimensions.z);
             return new RegionKey(regionX, regionY);
         }
 

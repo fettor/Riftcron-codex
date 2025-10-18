@@ -117,6 +117,8 @@ namespace Tuntenfisch.World
             float regionWidth = math.max(0.1f, regionDimensions.x);
             float regionDepth = math.max(0.1f, regionDimensions.z);
             float regionHeight = math.max(1.0f, regionDimensions.y);
+            float chunkWidth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.x * m_regionPlanner.Settings.MetersPerUnit;
+            float chunkDepth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.z * m_regionPlanner.Settings.MetersPerUnit;
 
             float3 viewerPos = (float3)m_viewer.position;
             RegionKey centerRegion = m_regionPlanner.Settings.GetRegionKeyFromWorldPosition(viewerPos);
@@ -130,11 +132,7 @@ namespace Tuntenfisch.World
                     int regionX = centerRegion.X + dx;
                     int regionY = centerRegion.Y + dz;
 
-                    float3 chunkDimensions = WorldManager.ChunkDimensions;
-                    float halfChunkWidth = math.max(0.0f, 0.5f * chunkDimensions.x);
-                    float halfChunkDepth = math.max(0.0f, 0.5f * chunkDimensions.z);
-
-                    float3 minCorner = new float3(regionX * regionWidth - halfChunkWidth, 0.0f, regionY * regionDepth - halfChunkDepth);
+                    float3 minCorner = new float3(regionX * regionWidth - 0.5f * chunkWidth, 0.0f, regionY * regionDepth - 0.5f * chunkDepth);
                     float3 center = minCorner + new float3(0.5f * regionWidth, 0.5f * regionHeight, 0.5f * regionDepth);
                     float3 size = new float3(regionWidth, regionHeight, regionDepth);
 
