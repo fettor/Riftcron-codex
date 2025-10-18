@@ -172,7 +172,7 @@ namespace Tuntenfisch.World.Planning
 
         private float EvaluateField(float2 worldXZ, uint regionSeed, ClimateNoiseSettings settings, uint salt, float bias)
         {
-            float noise = FractalValueNoise(worldXZ * settings.Frequency, settings, DeterministicRng.Hash(regionSeed, salt));
+            float noise = FractalValueNoise(worldXZ, settings, DeterministicRng.Hash(regionSeed, salt));
             float value = 0.5f + 0.5f * noise + bias * 0.5f;
             return math.saturate(value);
         }
