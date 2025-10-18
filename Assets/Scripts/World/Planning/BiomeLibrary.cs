@@ -21,10 +21,66 @@ namespace Tuntenfisch.World.Planning
         [SerializeField]
         private List<BiomeDefinition> m_biomes = new List<BiomeDefinition>
         {
-            BiomeDefinition.CreateDefault("Temperate Plains", new Color(0.4f, 0.8f, 0.3f), 0.55f, 0.45f),
-            BiomeDefinition.CreateDefault("Arid Plateau", new Color(0.9f, 0.7f, 0.3f), 0.7f, 0.15f),
-            BiomeDefinition.CreateDefault("Boreal", new Color(0.4f, 0.6f, 0.9f), 0.35f, 0.6f),
-            BiomeDefinition.CreateDefault("Tropical Wetlands", new Color(0.25f, 0.55f, 0.35f), 0.8f, 0.8f)
+            new BiomeDefinition(
+                "Temperate Plains",
+                new Color(0.36f, 0.73f, 0.28f),
+                new BiomeClimateSettings(
+                    temperatureCenter: 0.58f,
+                    temperatureRange: 0.26f,
+                    moistureCenter: 0.57f,
+                    moistureRange: 0.30f,
+                    weightSharpness: 2.1f),
+                BiomeTerrainParameters.Create(
+                    heightOffset: 8.0f,
+                    baseAmplitude: 20.0f,
+                    baseFrequency: new float3(0.0016f, 0.0014f, 0.0016f),
+                    warpStrength: 12.0f,
+                    warpFrequency: new float3(0.0050f, 0.0040f, 0.0050f))),
+            new BiomeDefinition(
+                "Arid Plateau",
+                new Color(0.88f, 0.72f, 0.32f),
+                new BiomeClimateSettings(
+                    temperatureCenter: 0.78f,
+                    temperatureRange: 0.20f,
+                    moistureCenter: 0.22f,
+                    moistureRange: 0.16f,
+                    weightSharpness: 2.8f),
+                BiomeTerrainParameters.Create(
+                    heightOffset: 42.0f,
+                    baseAmplitude: 24.0f,
+                    baseFrequency: new float3(0.0013f, 0.0013f, 0.0011f),
+                    warpStrength: 7.0f,
+                    warpFrequency: new float3(0.0038f, 0.0038f, 0.0030f))),
+            new BiomeDefinition(
+                "Boreal",
+                new Color(0.38f, 0.60f, 0.88f),
+                new BiomeClimateSettings(
+                    temperatureCenter: 0.32f,
+                    temperatureRange: 0.24f,
+                    moistureCenter: 0.64f,
+                    moistureRange: 0.28f,
+                    weightSharpness: 2.4f),
+                BiomeTerrainParameters.Create(
+                    heightOffset: 18.0f,
+                    baseAmplitude: 32.0f,
+                    baseFrequency: new float3(0.0022f, 0.0019f, 0.0020f),
+                    warpStrength: 19.0f,
+                    warpFrequency: new float3(0.0080f, 0.0065f, 0.0075f))),
+            new BiomeDefinition(
+                "Tropical Wetlands",
+                new Color(0.24f, 0.54f, 0.34f),
+                new BiomeClimateSettings(
+                    temperatureCenter: 0.88f,
+                    temperatureRange: 0.18f,
+                    moistureCenter: 0.86f,
+                    moistureRange: 0.18f,
+                    weightSharpness: 3.2f),
+                BiomeTerrainParameters.Create(
+                    heightOffset: -4.0f,
+                    baseAmplitude: 14.0f,
+                    baseFrequency: new float3(0.0014f, 0.0012f, 0.0014f),
+                    warpStrength: 15.0f,
+                    warpFrequency: new float3(0.0070f, 0.0060f, 0.0070f)))
         };
 
         private void OnValidate()
@@ -187,6 +243,9 @@ namespace Tuntenfisch.World.Planning
     [Serializable]
     public struct BiomeTerrainParameters
     {
+        private const float k_minFrequency = 1e-4f;
+        private const float k_maxFrequency = 0.25f;
+
         public static BiomeTerrainParameters Default => new BiomeTerrainParameters
         {
             m_heightOffset = 0.0f,
@@ -212,6 +271,18 @@ namespace Tuntenfisch.World.Planning
         private float m_warpStrength;
         [SerializeField]
         private float3 m_warpFrequency;
+
+        public static BiomeTerrainParameters Create(float heightOffset, float baseAmplitude, float3 baseFrequency, float warpStrength, float3 warpFrequency)
+        {
+            return new BiomeTerrainParameters
+            {
+                m_heightOffset = math.clamp(heightOffset, -256.0f, 256.0f),
+                m_baseAmplitude = math.max(0.0f, baseAmplitude),
+                m_baseFrequency = math.clamp(math.abs(baseFrequency), k_minFrequency, k_maxFrequency),
+                m_warpStrength = math.max(0.0f, warpStrength),
+                m_warpFrequency = math.clamp(math.abs(warpFrequency), k_minFrequency, k_maxFrequency)
+            };
+        }
 
         public BiomeTerrainParameters ClampFrequencies(float minFrequency, float maxFrequency)
         {
