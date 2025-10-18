@@ -400,7 +400,10 @@ namespace Tuntenfisch.World
             float2 scale = new float2(
                 regionSize.x > math.EPSILON ? 1.0f / regionSize.x : 0.0f,
                 regionSize.y > math.EPSILON ? 1.0f / regionSize.y : 0.0f);
-            float2 origin = new float2(regionKey.X, regionKey.Y) * regionSize;
+            float chunkWidth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.x * m_regionPlanner.Settings.MetersPerUnit;
+            float chunkDepth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.z * m_regionPlanner.Settings.MetersPerUnit;
+            float2 origin = new float2(regionKey.X * regionSize.x - 0.5f * chunkWidth,
+                                       regionKey.Y * regionSize.y - 0.5f * chunkDepth);
             float2 offset = -origin * scale;
 
             Vector2 climateUvScale = new Vector2(scale.x, scale.y);
