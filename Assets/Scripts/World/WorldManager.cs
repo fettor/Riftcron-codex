@@ -395,13 +395,13 @@ namespace Tuntenfisch.World
             Texture temperature = GetClimateTexture(plan, 0);
             Texture moisture = GetClimateTexture(plan, 1);
 
-            float3 regionDimensions = m_regionPlanner.Settings.GetRegionDimensionsInWorldUnits();
-            float2 regionSize = new float2(regionDimensions.x, regionDimensions.z);
+            float2 regionSpan = new float2(m_regionPlanner.Settings.RegionSpanInChunks.x, m_regionPlanner.Settings.RegionSpanInChunks.y);
+            float2 regionSize = new float2(m_chunkDimensions.x * regionSpan.x, m_chunkDimensions.z * regionSpan.y);
             float2 scale = new float2(
                 regionSize.x > math.EPSILON ? 1.0f / regionSize.x : 0.0f,
                 regionSize.y > math.EPSILON ? 1.0f / regionSize.y : 0.0f);
-            float chunkWidth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.x * m_regionPlanner.Settings.MetersPerUnit;
-            float chunkDepth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.z * m_regionPlanner.Settings.MetersPerUnit;
+            float chunkWidth = m_chunkDimensions.x;
+            float chunkDepth = m_chunkDimensions.z;
             float2 origin = new float2(regionKey.X * regionSize.x - 0.5f * chunkWidth,
                                        regionKey.Y * regionSize.y - 0.5f * chunkDepth);
             float2 offset = -origin * scale;

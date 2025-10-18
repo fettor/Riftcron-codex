@@ -56,10 +56,16 @@ namespace Tuntenfisch.World.Planning
             RegionKey regionKey = plan.RegionKey;
 
             uint worldSeedMixed = DeterministicRng.Hash((uint)settings.WorldSeed, 0xC1FCE55Du);
-            float3 regionDimensions = settings.GetRegionDimensionsInWorldUnits();
-            float2 regionSize = new float2(regionDimensions.x, regionDimensions.z);
-            float chunkWidth = settings.ChunkDimensionsInBlocks.x * settings.MetersPerUnit;
-            float chunkDepth = settings.ChunkDimensionsInBlocks.z * settings.MetersPerUnit;
+            float3 chunkDimensions = WorldManager.ChunkDimensions;
+            if (chunkDimensions.x <= 0.0f || chunkDimensions.z <= 0.0f)
+            {
+                float3 fallbackChunk = new float3(settings.ChunkDimensionsInBlocks.x, settings.ChunkDimensionsInBlocks.y, settings.ChunkDimensionsInBlocks.z) * settings.MetersPerUnit;
+                chunkDimensions = fallbackChunk;
+            }
+            float2 regionSpan = new float2(settings.RegionSpanInChunks.x, settings.RegionSpanInChunks.y);
+            float2 regionSize = new float2(chunkDimensions.x * regionSpan.x, chunkDimensions.z * regionSpan.y);
+            float chunkWidth = chunkDimensions.x;
+            float chunkDepth = chunkDimensions.z;
             float2 regionOrigin = new float2(regionKey.X * regionSize.x - 0.5f * chunkWidth, regionKey.Y * regionSize.y - 0.5f * chunkDepth);
 
             Color[] temperaturePixels = new Color[resolution * resolution];
@@ -78,15 +84,16 @@ namespace Tuntenfisch.World.Planning
                 }
             }
 
-            float latitudeScale = 1.0f / math.max(regionDimensions.z, 1.0f);
+            float latitudeScale = 1.0f / math.max(regionSize.y, 1.0f);
 
             for (int y = 0; y < resolution; ++y)
             {
                 for (int x = 0; x < resolution; ++x)
                 {
                     int index = y * resolution + x;
-                    float2 uv = new float2((x + 0.5f) / resolution, (y + 0.5f) / resolution);
-                    float2 worldXZ = regionOrigin + uv * regionSize;
+                    float u = resolution > 1 ? x / (float)(resolution - 1) : 0.0f;
+                    float v = resolution > 1 ? y / (float)(resolution - 1) : 0.0f;
+                    float2 worldXZ = regionOrigin + new float2(u, v) * regionSize;
 
                     float temperature = EvaluateField(worldXZ, worldSeedMixed, m_temperatureNoise, 0xFA16C10Bu, m_temperatureBias);
                     // Subtle latitudinal gradient (z points "north").

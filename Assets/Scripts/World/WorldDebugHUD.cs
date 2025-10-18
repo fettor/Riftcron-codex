@@ -113,12 +113,12 @@ namespace Tuntenfisch.World
                 return;
             }
 
-            float3 regionDimensions = m_regionPlanner.Settings.GetRegionDimensionsInWorldUnits();
-            float regionWidth = math.max(0.1f, regionDimensions.x);
-            float regionDepth = math.max(0.1f, regionDimensions.z);
-            float regionHeight = math.max(1.0f, regionDimensions.y);
-            float chunkWidth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.x * m_regionPlanner.Settings.MetersPerUnit;
-            float chunkDepth = m_regionPlanner.Settings.ChunkDimensionsInBlocks.z * m_regionPlanner.Settings.MetersPerUnit;
+            float3 chunkDimensions = WorldManager.ChunkDimensions;
+            float regionWidth = math.max(0.1f, chunkDimensions.x * m_regionPlanner.Settings.RegionSpanInChunks.x);
+            float regionDepth = math.max(0.1f, chunkDimensions.z * m_regionPlanner.Settings.RegionSpanInChunks.y);
+            float regionHeight = math.max(1.0f, chunkDimensions.y);
+            float chunkWidth = chunkDimensions.x;
+            float chunkDepth = chunkDimensions.z;
 
             float3 viewerPos = (float3)m_viewer.position;
             RegionKey centerRegion = m_regionPlanner.Settings.GetRegionKeyFromWorldPosition(viewerPos);
