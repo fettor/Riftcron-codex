@@ -1,4 +1,5 @@
 using System;
+using Tuntenfisch.Voxels;
 using Tuntenfisch.World.Math;
 using Unity.Mathematics;
 using UnityEngine;
@@ -20,6 +21,8 @@ namespace Tuntenfisch.World.Planning
         private int m_tileResolution = 128;
         [SerializeField]
         private BiomeLibrary m_biomeLibrary;
+        [SerializeField]
+        private VoxelConfig m_voxelConfig;
 
         [Header("Temperature Noise")]
         [SerializeField]
@@ -32,6 +35,14 @@ namespace Tuntenfisch.World.Planning
         private ClimateNoiseSettings m_moistureNoise = new ClimateNoiseSettings(0.0010f, 4, 0.8f, 2.15f, 0.5f);
         [SerializeField, Range(-1.0f, 1.0f)]
         private float m_moistureBias = 0.0f;
+
+        private void Awake()
+        {
+            if (m_voxelConfig == null)
+            {
+                m_voxelConfig = GetComponent<VoxelConfig>();
+            }
+        }
 
         public void PopulateClimateTiles(WorldSettings settings, RegionPlan plan)
         {
@@ -56,12 +67,7 @@ namespace Tuntenfisch.World.Planning
             RegionKey regionKey = plan.RegionKey;
 
             uint worldSeedMixed = DeterministicRng.Hash((uint)settings.WorldSeed, 0xC1FCE55Du);
-            float3 chunkDimensions = WorldManager.ChunkDimensions;
-            if (chunkDimensions.x <= 0.0f || chunkDimensions.z <= 0.0f)
-            {
-                float3 fallbackChunk = new float3(settings.ChunkDimensionsInBlocks.x, settings.ChunkDimensionsInBlocks.y, settings.ChunkDimensionsInBlocks.z) * settings.MetersPerUnit;
-                chunkDimensions = fallbackChunk;
-            }
+            float3 chunkDimensions = ResolveChunkDimensions(settings);
             float2 regionSpan = new float2(settings.RegionSpanInChunks.x, settings.RegionSpanInChunks.y);
             float2 regionSize = new float2(chunkDimensions.x * regionSpan.x, chunkDimensions.z * regionSpan.y);
             float chunkWidth = chunkDimensions.x;
@@ -226,6 +232,34 @@ namespace Tuntenfisch.World.Planning
         private static float HashToSigned01(uint hash)
         {
             return DeterministicRng.Range01(hash) * 2.0f - 1.0f;
+        }
+
+        private float3 ResolveChunkDimensions(WorldSettings settings)
+        {
+            float3 chunkDimensions = WorldManager.ChunkDimensions;
+
+            if (chunkDimensions.x > 0.0f && chunkDimensions.z > 0.0f)
+            {
+                return chunkDimensions;
+            }
+
+            VoxelConfig voxelConfig = m_voxelConfig;
+
+            if (voxelConfig == null)
+            {
+                voxelConfig = GetComponent<VoxelConfig>();
+            }
+
+            if (voxelConfig != null && voxelConfig.VoxelVolumeConfig != null)
+            {
+                float3 voxelVolumeDimensions = voxelConfig.VoxelVolumeConfig.VoxelVolumeDimensions;
+                const int voxelOverlap = 1;
+                int cells = voxelConfig.VoxelVolumeConfig.NumberOfCellsAlongAxis;
+                float inflationFactor = 1.0f + (float)voxelOverlap / math.max(1, cells - voxelOverlap);
+                return voxelVolumeDimensions / inflationFactor;
+            }
+
+            return new float3(settings.ChunkDimensionsInBlocks.x, settings.ChunkDimensionsInBlocks.y, settings.ChunkDimensionsInBlocks.z) * settings.MetersPerUnit;
         }
 
         [Serializable]

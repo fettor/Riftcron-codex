@@ -23,7 +23,7 @@ namespace Tuntenfisch.World
         /// </summary>
         public float3 GetRegionDimensionsInWorldUnits()
         {
-            float3 chunkDimensions = new float3(m_chunkSizeInBlocks.x, m_chunkSizeInBlocks.y, m_chunkSizeInBlocks.z) * m_metersPerUnit;
+            float3 chunkDimensions = ResolveChunkDimensions();
             return new float3(chunkDimensions.x * m_regionSpanInChunks.x, chunkDimensions.y, chunkDimensions.z * m_regionSpanInChunks.y);
         }
 
@@ -32,9 +32,10 @@ namespace Tuntenfisch.World
         /// </summary>
         public RegionKey GetRegionKeyFromWorldPosition(float3 worldPosition)
         {
-            float3 regionDimensions = GetRegionDimensionsInWorldUnits();
-            float chunkWidth = m_chunkSizeInBlocks.x * m_metersPerUnit;
-            float chunkDepth = m_chunkSizeInBlocks.z * m_metersPerUnit;
+            float3 chunkDimensions = ResolveChunkDimensions();
+            float3 regionDimensions = new float3(chunkDimensions.x * m_regionSpanInChunks.x, chunkDimensions.y, chunkDimensions.z * m_regionSpanInChunks.y);
+            float chunkWidth = chunkDimensions.x;
+            float chunkDepth = chunkDimensions.z;
             int regionX = Mathf.FloorToInt((worldPosition.x + 0.5f * chunkWidth) / regionDimensions.x);
             int regionY = Mathf.FloorToInt((worldPosition.z + 0.5f * chunkDepth) / regionDimensions.z);
             return new RegionKey(regionX, regionY);
@@ -59,6 +60,18 @@ namespace Tuntenfisch.World
             m_metersPerUnit = Mathf.Max(0.001f, m_metersPerUnit);
             m_chunkSizeInBlocks = new Vector3Int(math.max(1, m_chunkSizeInBlocks.x), math.max(1, m_chunkSizeInBlocks.y), math.max(1, m_chunkSizeInBlocks.z));
             m_regionSpanInChunks = new Vector2Int(math.max(1, m_regionSpanInChunks.x), math.max(1, m_regionSpanInChunks.y));
+        }
+
+        private float3 ResolveChunkDimensions()
+        {
+            float3 chunkDimensions = WorldManager.ChunkDimensions;
+
+            if (chunkDimensions.x > 0.0f && chunkDimensions.z > 0.0f)
+            {
+                return chunkDimensions;
+            }
+
+            return new float3(m_chunkSizeInBlocks.x, m_chunkSizeInBlocks.y, m_chunkSizeInBlocks.z) * m_metersPerUnit;
         }
 
         [SerializeField]
