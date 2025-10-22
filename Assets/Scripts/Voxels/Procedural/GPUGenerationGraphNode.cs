@@ -19,6 +19,7 @@ namespace Tuntenfisch.Voxels.Procedural
         public GPUCSGOperator CSGOperator => m_csgOperator;
         public GPUBiomeMapParameters BiomeMapParameters => m_biomeMapParameters;
         public GPUBiomeMixerParameters BiomeMixerParameters => m_biomeMixerParameters;
+        public GPUMountainParameters MountainParameters => m_mountainParameters;
 
         private readonly static int s_sizeInBytes = Marshal.SizeOf<GPUGenerationGraphNode>();
 
@@ -38,6 +39,8 @@ namespace Tuntenfisch.Voxels.Procedural
         private GPUBiomeMapParameters m_biomeMapParameters;
         [SerializeField]
         private GPUBiomeMixerParameters m_biomeMixerParameters;
+        [SerializeField]
+        private GPUMountainParameters m_mountainParameters;
 
         public GPUGenerationGraphNode(
             NodeType nodeType,
@@ -47,7 +50,8 @@ namespace Tuntenfisch.Voxels.Procedural
             MaterialIndex materialIndex,
             GPUCSGOperator csgOperator,
             GPUBiomeMapParameters biomeMapParameters,
-            GPUBiomeMixerParameters biomeMixerParameters)
+            GPUBiomeMixerParameters biomeMixerParameters,
+            GPUMountainParameters mountainParameters)
         {
             m_nodeType = nodeType;
             m_transformMatrix = transformMatrix;
@@ -57,6 +61,7 @@ namespace Tuntenfisch.Voxels.Procedural
             m_csgOperator = csgOperator;
             m_biomeMapParameters = biomeMapParameters;
             m_biomeMixerParameters = biomeMixerParameters;
+            m_mountainParameters = mountainParameters;
         }
     }
 
@@ -91,5 +96,22 @@ namespace Tuntenfisch.Voxels.Procedural
         public uint BiomeCount;
         public Vector2 Padding;
     }
-}
 
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GPUMountainParameters
+    {
+        public Vector4 Amplitude;
+        public Vector4 RidgeSharpness;
+        public Vector4 FrequencyX;
+        public Vector4 FrequencyY;
+        public Vector4 FrequencyZ;
+        public Vector4 WarpStrength;
+        public Vector4 WarpFrequencyX;
+        public Vector4 WarpFrequencyY;
+        public Vector4 WarpFrequencyZ;
+        public float MixStrength;
+        public uint BiomeCount;
+        public Vector2 PlateauSlopeRangeDeg;
+    }
+}

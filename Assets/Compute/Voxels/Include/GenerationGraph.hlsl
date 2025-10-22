@@ -5,6 +5,7 @@
 #include "Assets/Compute/Voxels/Include/Noise.hlsl"
 #include "Assets/Compute/Voxels/Include/Voxel.hlsl"
 #include "Assets/Compute/Voxels/Include/Biomes.hlsl"
+#include "Assets/Compute/Voxels/Include/Mountains.hlsl"
 
 ENUM NodeType
 {
@@ -18,6 +19,7 @@ ENUM NodeType
     static const uint Output = 7;
     static const uint BiomeMap = 8;
     static const uint BiomeMixer = 9;
+    static const uint Mountain = 10;
 };
 
 struct GenerationGraphNode
@@ -31,6 +33,7 @@ struct GenerationGraphNode
     CSGOperator csgOperator;
     GPUBiomeMapParameters biomeMapParameters;
     GPUBiomeMixerParameters biomeMixerParameters;
+    GPUMountainParameters mountainParameters;
 };
 
 StructuredBuffer<GenerationGraphNode> generationGraphNodes;
@@ -96,6 +99,7 @@ Voxel EvaluateGenerationGraph(float3 position)
     Voxel voxel;
     GenerationGraphStack stack = GenerationGraphStack::Create();
     ResetBiomeContext();
+    ResetMountainDebug();
 
     for (uint nodeIndex = 0; nodeIndex < numberOfGenerationGraphNodes; nodeIndex++)
     {
@@ -223,6 +227,18 @@ Voxel EvaluateGenerationGraph(float3 position)
 
                 baseValue.x += GetBiomeHeightOffset();
                 stack.PushValueAndGradient(baseValue);
+                break;
+            }
+
+            case NodeType::Mountain:
+            {
+                float3 mountainPosition = stack.PopPosition();
+                NoiseParameters baseParameters = node.noiseParameters;
+                baseParameters.noiseAxes = NoiseAxes::XZ;
+                baseParameters.noiseType = NoiseType::Ridge;
+                float4 mountainValue;
+                EvaluateMountain(mountainPosition, baseParameters, node.mountainParameters, mountainValue);
+                stack.PushValueAndGradient(mountainValue);
                 break;
             }
 

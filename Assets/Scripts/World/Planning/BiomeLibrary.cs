@@ -35,7 +35,13 @@ namespace Tuntenfisch.World.Planning
                     baseAmplitude: 20.0f,
                     baseFrequency: new float3(0.0016f, 0.0014f, 0.0016f),
                     warpStrength: 12.0f,
-                    warpFrequency: new float3(0.0050f, 0.0040f, 0.0050f))),
+                    warpFrequency: new float3(0.0050f, 0.0040f, 0.0050f),
+                    mountains: BiomeMountainParameters.Create(
+                        amplitude: 120.0f,
+                        ridgeSharpness: 1.1f,
+                        frequency: new float3(0.0014f, 0.0010f, 0.0014f),
+                        warpStrength: 36.0f,
+                        warpFrequency: new float3(0.0009f, 0.0007f, 0.0009f)))),
             new BiomeDefinition(
                 "Arid Plateau",
                 new Color(0.88f, 0.72f, 0.32f),
@@ -50,7 +56,13 @@ namespace Tuntenfisch.World.Planning
                     baseAmplitude: 24.0f,
                     baseFrequency: new float3(0.0013f, 0.0013f, 0.0011f),
                     warpStrength: 7.0f,
-                    warpFrequency: new float3(0.0038f, 0.0038f, 0.0030f))),
+                    warpFrequency: new float3(0.0038f, 0.0038f, 0.0030f),
+                    mountains: BiomeMountainParameters.Create(
+                        amplitude: 48.0f,
+                        ridgeSharpness: 1.35f,
+                        frequency: new float3(0.0011f, 0.0009f, 0.0010f),
+                        warpStrength: 28.0f,
+                        warpFrequency: new float3(0.0007f, 0.0006f, 0.0006f)))),
             new BiomeDefinition(
                 "Boreal",
                 new Color(0.38f, 0.60f, 0.88f),
@@ -65,7 +77,13 @@ namespace Tuntenfisch.World.Planning
                     baseAmplitude: 32.0f,
                     baseFrequency: new float3(0.0022f, 0.0019f, 0.0020f),
                     warpStrength: 19.0f,
-                    warpFrequency: new float3(0.0080f, 0.0065f, 0.0075f))),
+                    warpFrequency: new float3(0.0080f, 0.0065f, 0.0075f),
+                    mountains: BiomeMountainParameters.Create(
+                        amplitude: 260.0f,
+                        ridgeSharpness: 1.7f,
+                        frequency: new float3(0.0018f, 0.0013f, 0.0017f),
+                        warpStrength: 58.0f,
+                        warpFrequency: new float3(0.0013f, 0.0010f, 0.0012f)))),
             new BiomeDefinition(
                 "Tropical Wetlands",
                 new Color(0.24f, 0.54f, 0.34f),
@@ -80,7 +98,13 @@ namespace Tuntenfisch.World.Planning
                     baseAmplitude: 14.0f,
                     baseFrequency: new float3(0.0014f, 0.0012f, 0.0014f),
                     warpStrength: 15.0f,
-                    warpFrequency: new float3(0.0070f, 0.0060f, 0.0070f)))
+                    warpFrequency: new float3(0.0070f, 0.0060f, 0.0070f),
+                    mountains: BiomeMountainParameters.Create(
+                        amplitude: 84.0f,
+                        ridgeSharpness: 1.25f,
+                        frequency: new float3(0.0016f, 0.0011f, 0.0016f),
+                        warpStrength: 44.0f,
+                        warpFrequency: new float3(0.0011f, 0.0008f, 0.0011f))))
         };
 
         private void OnValidate()
@@ -252,7 +276,8 @@ namespace Tuntenfisch.World.Planning
             m_baseAmplitude = 24.0f,
             m_baseFrequency = new float3(0.0025f, 0.0025f, 0.0025f),
             m_warpStrength = 18.0f,
-            m_warpFrequency = new float3(0.01f, 0.01f, 0.01f)
+            m_warpFrequency = new float3(0.01f, 0.01f, 0.01f),
+            m_mountains = BiomeMountainParameters.Default
         };
 
         public float HeightOffset => m_heightOffset;
@@ -260,6 +285,7 @@ namespace Tuntenfisch.World.Planning
         public float3 BaseFrequency => m_baseFrequency;
         public float WarpStrength => m_warpStrength;
         public float3 WarpFrequency => m_warpFrequency;
+        public BiomeMountainParameters Mountains => m_mountains;
 
         [SerializeField, Range(-256.0f, 256.0f)]
         private float m_heightOffset;
@@ -271,16 +297,26 @@ namespace Tuntenfisch.World.Planning
         private float m_warpStrength;
         [SerializeField]
         private float3 m_warpFrequency;
+        [SerializeField]
+        private BiomeMountainParameters m_mountains;
 
         public static BiomeTerrainParameters Create(float heightOffset, float baseAmplitude, float3 baseFrequency, float warpStrength, float3 warpFrequency)
         {
+            return Create(heightOffset, baseAmplitude, baseFrequency, warpStrength, warpFrequency, BiomeMountainParameters.Default);
+        }
+
+        public static BiomeTerrainParameters Create(float heightOffset, float baseAmplitude, float3 baseFrequency, float warpStrength, float3 warpFrequency, BiomeMountainParameters mountains)
+        {
+            BiomeMountainParameters mountainParameters = mountains.Validated();
+
             return new BiomeTerrainParameters
             {
                 m_heightOffset = math.clamp(heightOffset, -256.0f, 256.0f),
                 m_baseAmplitude = math.max(0.0f, baseAmplitude),
                 m_baseFrequency = math.clamp(math.abs(baseFrequency), k_minFrequency, k_maxFrequency),
                 m_warpStrength = math.max(0.0f, warpStrength),
-                m_warpFrequency = math.clamp(math.abs(warpFrequency), k_minFrequency, k_maxFrequency)
+                m_warpFrequency = math.clamp(math.abs(warpFrequency), k_minFrequency, k_maxFrequency),
+                m_mountains = mountainParameters
             };
         }
 
@@ -288,6 +324,7 @@ namespace Tuntenfisch.World.Planning
         {
             float3 baseFreq = math.clamp(math.abs(m_baseFrequency), minFrequency, maxFrequency);
             float3 warpFreq = math.clamp(math.abs(m_warpFrequency), minFrequency, maxFrequency);
+            BiomeMountainParameters mountains = m_mountains.ClampFrequencies(minFrequency, maxFrequency);
 
             return new BiomeTerrainParameters
             {
@@ -295,8 +332,76 @@ namespace Tuntenfisch.World.Planning
                 m_baseAmplitude = math.max(0.0f, m_baseAmplitude),
                 m_baseFrequency = baseFreq,
                 m_warpStrength = math.max(0.0f, m_warpStrength),
-                m_warpFrequency = warpFreq
+                m_warpFrequency = warpFreq,
+                m_mountains = mountains
             };
+        }
+    }
+
+    [Serializable]
+    public struct BiomeMountainParameters
+    {
+        private const float k_minFrequency = 1e-4f;
+        private const float k_maxFrequency = 0.25f;
+
+        public static BiomeMountainParameters Default => new BiomeMountainParameters
+        {
+            m_amplitude = 0.0f,
+            m_ridgeSharpness = 1.0f,
+            m_frequency = new float3(0.0015f, 0.0015f, 0.0015f),
+            m_warpStrength = 0.0f,
+            m_warpFrequency = new float3(0.001f, 0.001f, 0.001f)
+        };
+
+        public float Amplitude => m_amplitude;
+        public float RidgeSharpness => m_ridgeSharpness;
+        public float3 Frequency => m_frequency;
+        public float WarpStrength => m_warpStrength;
+        public float3 WarpFrequency => m_warpFrequency;
+
+        [Header("Mountains")]
+        [SerializeField, Range(0.0f, 1024.0f)]
+        private float m_amplitude;
+        [SerializeField, Min(1.0f)]
+        private float m_ridgeSharpness;
+        [SerializeField]
+        private float3 m_frequency;
+        [SerializeField, Range(0.0f, 512.0f)]
+        private float m_warpStrength;
+        [SerializeField]
+        private float3 m_warpFrequency;
+
+        public static BiomeMountainParameters Create(float amplitude, float ridgeSharpness, float3 frequency, float warpStrength, float3 warpFrequency)
+        {
+            BiomeMountainParameters parameters = new BiomeMountainParameters
+            {
+                m_amplitude = math.max(0.0f, amplitude),
+                m_ridgeSharpness = math.max(1.0f, ridgeSharpness),
+                m_frequency = frequency,
+                m_warpStrength = math.max(0.0f, warpStrength),
+                m_warpFrequency = warpFrequency
+            };
+
+            return parameters.Validated();
+        }
+
+        public BiomeMountainParameters Validated()
+        {
+            BiomeMountainParameters parameters = this;
+            parameters.m_amplitude = math.max(0.0f, parameters.m_amplitude);
+            parameters.m_ridgeSharpness = math.max(1.0f, parameters.m_ridgeSharpness);
+            parameters.m_frequency = math.clamp(math.abs(parameters.m_frequency), k_minFrequency, k_maxFrequency);
+            parameters.m_warpStrength = math.max(0.0f, parameters.m_warpStrength);
+            parameters.m_warpFrequency = math.clamp(math.abs(parameters.m_warpFrequency), k_minFrequency, k_maxFrequency);
+            return parameters;
+        }
+
+        public BiomeMountainParameters ClampFrequencies(float minFrequency, float maxFrequency)
+        {
+            BiomeMountainParameters parameters = this;
+            parameters.m_frequency = math.clamp(math.abs(parameters.m_frequency), minFrequency, maxFrequency);
+            parameters.m_warpFrequency = math.clamp(math.abs(parameters.m_warpFrequency), minFrequency, maxFrequency);
+            return parameters.Validated();
         }
     }
 }

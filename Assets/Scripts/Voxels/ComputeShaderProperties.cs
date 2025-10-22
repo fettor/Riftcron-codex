@@ -31,5 +31,7 @@ namespace Tuntenfisch.Voxels
         public static readonly int VoxelVolume = Shader.PropertyToID("voxelVolume");
         public static readonly int VoxelVolumeCSGOperations = Shader.PropertyToID("voxelVolumeCSGOperations");
         public static readonly int VoxelVolumeToWorldSpaceOffset = Shader.PropertyToID("voxelVolumeToWorldSpaceOffset");
+        public static readonly int MountainMaskTexture = Shader.PropertyToID("mountainMaskTexture");
+        public static readonly int WriteMountainMask = Shader.PropertyToID("writeMountainMask");
     }
 }

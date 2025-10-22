@@ -124,8 +124,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5429f6d037ac7344ba2d53d6f1eb48c, type: 3}
-  m_Name: Noise
+    m_Script: {fileID: 11500000, guid: 3b48f1ed471f4350a8f58dbf5116c3e2, type: 3}
+    m_Name: Mountain
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
   position: {x: -456, y: -520}
@@ -782,21 +782,24 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    m_noiseParameters:
+    m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+    m_baseRidgedSettings:
       m_seed: 0
-      m_noiseAxes: 0
-      m_noiseType: 2
-      m_numberOfOctaves: 8
-      m_initialAmplitude: 20
+      m_octaves: 6
+      m_initialAmplitude: 1
       m_initialFrequency:
-        x: 0.01
-        y: 0.01
-        z: 0.01
-      m_persistence: 0.22
+        x: 0.0016
+        y: 0
+        z: 0.0016
+      m_persistence: 0.5
       m_lacunarity:
         x: 2
         y: 2
         z: 2
+    m_mixStrength: 1
+    m_plateauSlopeLow: 6
+    m_plateauSlopeHigh: 18
+    m_writeMountainMask: 0
     m_csgPrimitive:
       m_primitiveType: 0
     m_materialIndex: 0

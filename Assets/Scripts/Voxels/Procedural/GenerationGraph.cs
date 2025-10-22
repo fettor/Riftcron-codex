@@ -39,6 +39,7 @@ namespace Tuntenfisch.Voxels.Procedural
                 GPUCSGOperator csgOperator = new GPUCSGOperator();
                 GPUBiomeMapParameters biomeMapParameters = default;
                 GPUBiomeMixerParameters biomeMixerParameters = default;
+                GPUMountainParameters mountainParameters = default;
 
                 switch (node.GetNodeType())
                 {
@@ -67,6 +68,12 @@ namespace Tuntenfisch.Voxels.Procedural
                         noiseParameters = noiseNode.NoiseParameters;
                         break;
 
+                    case NodeType.Mountain:
+                        MountainNode mountainNode = (MountainNode)node;
+                        noiseParameters = mountainNode.BaseNoiseParameters;
+                        mountainParameters = BuildMountainParameters(mountainNode);
+                        break;
+
                     case NodeType.CSGPrimitive:
                         CSGPrimitiveNode csgPrimitiveNode = (CSGPrimitiveNode)node;
                         csgPrimitive = csgPrimitiveNode.CSGPrimitive;
@@ -82,7 +89,7 @@ namespace Tuntenfisch.Voxels.Procedural
                         csgOperator = csgOperationNode.CSGOperator;
                         break;
                 }
-                m_nodes.Add(new GPUGenerationGraphNode(node.GetNodeType(), transformMatrix, noiseParameters, csgPrimitive, materialIndex, csgOperator, biomeMapParameters, biomeMixerParameters));
+                m_nodes.Add(new GPUGenerationGraphNode(node.GetNodeType(), transformMatrix, noiseParameters, csgPrimitive, materialIndex, csgOperator, biomeMapParameters, biomeMixerParameters, mountainParameters));
             }
             OnDirtied?.Invoke();
             OnLateDirtied?.Invoke();
@@ -209,6 +216,62 @@ namespace Tuntenfisch.Voxels.Procedural
             parameters.MixStrength = Mathf.Clamp01(node.MixStrength);
             parameters.BiomeCount = (uint)count;
             parameters.Padding = Vector2.zero;
+            return parameters;
+        }
+
+        private static GPUMountainParameters BuildMountainParameters(MountainNode node)
+        {
+            GPUMountainParameters parameters = default;
+            BiomeLibrary library = node.BiomeLibrary;
+
+            parameters.MixStrength = Mathf.Clamp01(node.MixStrength);
+            Vector2 plateauRange = node.PlateauSlopeRange;
+            float low = Mathf.Clamp(plateauRange.x, 0.0f, 90.0f);
+            float high = Mathf.Clamp(Mathf.Max(plateauRange.y, low + 0.1f), 0.0f, 90.0f);
+            parameters.PlateauSlopeRangeDeg = new Vector2(low, high);
+
+            if (library == null || library.BiomeCount == 0)
+            {
+                parameters.BiomeCount = 0u;
+                return parameters;
+            }
+
+            int count = library.BiomeCount;
+            Vector4 amplitude = Vector4.zero;
+            Vector4 ridgeSharpness = Vector4.one;
+            Vector4 frequencyX = Vector4.zero;
+            Vector4 frequencyY = Vector4.zero;
+            Vector4 frequencyZ = Vector4.zero;
+            Vector4 warpStrength = Vector4.zero;
+            Vector4 warpFrequencyX = Vector4.zero;
+            Vector4 warpFrequencyY = Vector4.zero;
+            Vector4 warpFrequencyZ = Vector4.zero;
+
+            for (int i = 0; i < count; ++i)
+            {
+                BiomeDefinition biome = library.GetBiome(i);
+                BiomeMountainParameters mountains = biome.Terrain.Mountains;
+                amplitude[i] = Mathf.Max(0.0f, mountains.Amplitude);
+                ridgeSharpness[i] = Mathf.Max(1.0f, mountains.RidgeSharpness);
+                frequencyX[i] = mountains.Frequency.x;
+                frequencyY[i] = mountains.Frequency.y;
+                frequencyZ[i] = mountains.Frequency.z;
+                warpStrength[i] = Mathf.Max(0.0f, mountains.WarpStrength);
+                warpFrequencyX[i] = mountains.WarpFrequency.x;
+                warpFrequencyY[i] = mountains.WarpFrequency.y;
+                warpFrequencyZ[i] = mountains.WarpFrequency.z;
+            }
+
+            parameters.Amplitude = amplitude;
+            parameters.RidgeSharpness = ridgeSharpness;
+            parameters.FrequencyX = frequencyX;
+            parameters.FrequencyY = frequencyY;
+            parameters.FrequencyZ = frequencyZ;
+            parameters.WarpStrength = warpStrength;
+            parameters.WarpFrequencyX = warpFrequencyX;
+            parameters.WarpFrequencyY = warpFrequencyY;
+            parameters.WarpFrequencyZ = warpFrequencyZ;
+            parameters.BiomeCount = (uint)count;
             return parameters;
         }
     }

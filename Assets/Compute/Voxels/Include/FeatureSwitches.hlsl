@@ -3,7 +3,7 @@
 
 // Feature toggles (set to 1 to enable). Individual passes consult these values.
 #define FEATURE_BASE_TERRAIN 1
-#define FEATURE_MOUNTAINS 0
+#define FEATURE_MOUNTAINS 1
 #define FEATURE_RIVERS 0
 #define FEATURE_ROADS 0
 #define FEATURE_STAMPS 0

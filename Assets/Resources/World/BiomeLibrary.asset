@@ -33,6 +33,18 @@ MonoBehaviour:
         x: 0.008
         y: 0.008
         z: 0.008
+      m_mountains:
+        m_amplitude: 120
+        m_ridgeSharpness: 1.1
+        m_frequency:
+          x: 0.0014
+          y: 0.001
+          z: 0.0014
+        m_warpStrength: 36
+        m_warpFrequency:
+          x: 0.0009
+          y: 0.0007
+          z: 0.0009
   - m_id: Arid Plateau
     m_debugColor: {r: 0.9, g: 0.7, b: 0.3, a: 1}
     m_climate:
@@ -53,6 +65,18 @@ MonoBehaviour:
         x: 0.008
         y: 0.008
         z: 0.008
+      m_mountains:
+        m_amplitude: 48
+        m_ridgeSharpness: 1.35
+        m_frequency:
+          x: 0.0011
+          y: 0.0009
+          z: 0.001
+        m_warpStrength: 28
+        m_warpFrequency:
+          x: 0.0007
+          y: 0.0006
+          z: 0.0006
   - m_id: Boreal
     m_debugColor: {r: 0.4, g: 0.6, b: 0.9, a: 1}
     m_climate:
@@ -73,6 +97,18 @@ MonoBehaviour:
         x: 0.0095
         y: 0.0095
         z: 0.0095
+      m_mountains:
+        m_amplitude: 260
+        m_ridgeSharpness: 1.7
+        m_frequency:
+          x: 0.0018
+          y: 0.0013
+          z: 0.0017
+        m_warpStrength: 58
+        m_warpFrequency:
+          x: 0.0013
+          y: 0.001
+          z: 0.0012
   - m_id: Tropical Wetlands
     m_debugColor: {r: 0.25, g: 0.55, b: 0.35, a: 1}
     m_climate:
@@ -93,3 +129,15 @@ MonoBehaviour:
         x: 0.0095
         y: 0.0095
         z: 0.0095
+      m_mountains:
+        m_amplitude: 84
+        m_ridgeSharpness: 1.25
+        m_frequency:
+          x: 0.0016
+          y: 0.0011
+          z: 0.0016
+        m_warpStrength: 44
+        m_warpFrequency:
+          x: 0.0011
+          y: 0.0008
+          z: 0.0011

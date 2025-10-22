@@ -12,6 +12,7 @@
         CSGOperation = 6,
         Output = 7,
         BiomeMap = 8,
-        BiomeMixer = 9
+        BiomeMixer = 9,
+        Mountain = 10
     }
 }

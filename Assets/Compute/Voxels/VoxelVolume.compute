@@ -22,6 +22,8 @@ Texture2D<float4> climateTemperature;
 Texture2D<float4> climateMoisture;
 float2 climateUVScale;
 float2 climateUVOffset;
+RWTexture2D<float4> mountainMaskTexture;
+uint writeMountainMask;
 
 SamplerState samplerLinearClamp
 {
@@ -50,6 +52,13 @@ void GenerateVoxelVolume(uint3 voxelID : SV_DispatchThreadID)
     Voxel voxel = EvaluateGenerationGraph(worldPosition);
 
     SetVoxel(voxelID, voxel);
+
+    if (writeMountainMask != 0u && voxelID.y == numberOfVoxels.y - 1u)
+    {
+        float mountain = GetMountainMask();
+        float plateau = GetPlateauMask();
+        mountainMaskTexture[int2(voxelID.x, voxelID.z)] = float4(mountain, plateau, 0.0f, 1.0f);
+    }
 }
 
 [numthreads(4, 4, 4)]

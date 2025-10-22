@@ -4,6 +4,7 @@ using Tuntenfisch.Extensions;
 using Tuntenfisch.World;
 using Tuntenfisch.World.Buffers;
 using Tuntenfisch.Voxels.Procedural;
+using Tuntenfisch.Voxels.Debugging;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace Tuntenfisch.Voxels.Volume
         private ComputeBuffer m_voxelVolumeCSGOperationsBuffer;
         private int m_generateKernel = -1;
         private int m_csgKernel = -1;
+        private MountainMaskOverlay m_mountainMaskOverlay;
 
         private void Awake()
         {
@@ -28,6 +30,7 @@ namespace Tuntenfisch.Voxels.Volume
             m_voxelConfig.GenerationGraph.Rebuild();
             m_voxelConfig.GenerationGraph.OnDirtied += ApplyGenerationGraph;
             ApplyGenerationGraph();
+            m_mountainMaskOverlay = GetComponent<MountainMaskOverlay>();
         }
 
         private void OnDestroy()
@@ -66,6 +69,11 @@ namespace Tuntenfisch.Voxels.Volume
             m_voxelConfig.VoxelVolumeConfig.Compute.SetVector(ComputeShaderProperties.VoxelVolumeToWorldSpaceOffset, (Vector3)worldPosition);
             m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_generateKernel, ComputeShaderProperties.VoxelVolume, voxelVolumeBuffer);
             BindRegionData(bindings);
+            bool capturingMountainMask = m_mountainMaskOverlay != null && m_mountainMaskOverlay.ConfigureGenerationKernel(m_voxelConfig.VoxelVolumeConfig.Compute, m_generateKernel);
+            if (!capturingMountainMask)
+            {
+                m_voxelConfig.VoxelVolumeConfig.Compute.SetInt(ComputeShaderProperties.WriteMountainMask, 0);
+            }
             m_voxelConfig.VoxelVolumeConfig.Compute.Dispatch(m_generateKernel, m_voxelConfig.VoxelVolumeConfig.NumberOfVoxels);
         }
 
