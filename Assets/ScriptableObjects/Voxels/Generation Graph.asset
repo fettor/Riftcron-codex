@@ -124,11 +124,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-    m_Script: {fileID: 11500000, guid: 3b48f1ed471f4350a8f58dbf5116c3e2, type: 3}
-    m_Name: Mountain
+  m_Script: {fileID: 11500000, guid: 3b48f1ed471f4350a8f58dbf5116c3e2, type: 3}
+  m_Name: Mountain
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -456, y: -520}
+  position: {x: -584, y: -664}
   ports:
     keys:
     - m_position
@@ -162,21 +162,18 @@ MonoBehaviour:
   m_valueAndGradient:
     x: 0
     y: 0
-  m_noiseParameters:
-    m_seed: 0
-    m_noiseAxes: 0
-    m_noiseType: 2
-    m_numberOfOctaves: 8
-    m_initialAmplitude: 20
-    m_initialFrequency:
-      x: 0.01
-      y: 0.01
-      z: 0.01
-    m_persistence: 0.22
-    m_lacunarity:
-      x: 2
-      y: 2
-      z: 2
+  m_biomeLibrary: {fileID: 0}
+  m_baseRidgedSettings:
+    m_seed: 1337
+    m_octaves: 6
+    m_initialAmplitude: 1
+    m_initialFrequency: {x: 0.0016, y: 0, z: 0.0016}
+    m_persistence: 0.5
+    m_lacunarity: {x: 2, y: 2, z: 2}
+  m_mixStrength: 1
+  m_plateauSlopeLow: 6
+  m_plateauSlopeHigh: 18
+  m_writeMountainMask: 0
 --- !u!114 &-5024580299425895458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -703,6 +700,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 1
     m_transformMatrix:
       e00: 1
@@ -764,7 +774,20 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
-  - m_nodeType: 3
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 8
     m_transformMatrix:
       e00: 1
       e01: 0
@@ -782,10 +805,159 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
-    m_baseRidgedSettings:
+    m_noiseParameters:
       m_seed: 0
-      m_octaves: 6
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0.55, y: 0.7, z: 0.35, w: 0.8}
+      TemperatureRange: {x: 0.35, y: 0.3, z: 0.4, w: 0.35}
+      MoistureCenter: {x: 0.45, y: 0.15, z: 0.6, w: 0.8}
+      MoistureRange: {x: 0.35, y: 0.25, z: 0.35, w: 0.35}
+      WeightSharpness: {x: 2, y: 2.5, z: 2.2, w: 1.8}
+      WeightGain: 1
+      BiomeCount: 4
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 9
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 0
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 17, y: 28, z: 11, w: 17}
+      HeightOffset: {x: 4, y: 12, z: 6, w: 7}
+      BaseFrequencyX: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      BaseFrequencyY: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      BaseFrequencyZ: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      WarpStrength: {x: 14, y: 12, z: 8, w: 17}
+      WarpFrequencyX: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      WarpFrequencyY: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      WarpFrequencyZ: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      MixStrength: 1
+      BiomeCount: 4
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 10
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 1337
+      m_noiseAxes: 0
+      m_noiseType: 2
+      m_numberOfOctaves: 6
       m_initialAmplitude: 1
       m_initialFrequency:
         x: 0.0016
@@ -796,10 +968,6 @@ MonoBehaviour:
         x: 2
         y: 2
         z: 2
-    m_mixStrength: 1
-    m_plateauSlopeLow: 6
-    m_plateauSlopeHigh: 18
-    m_writeMountainMask: 0
     m_csgPrimitive:
       m_primitiveType: 0
     m_materialIndex: 0
@@ -828,6 +996,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 1
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 6, y: 18}
   - m_nodeType: 5
     m_transformMatrix:
       e00: 1
@@ -889,6 +1070,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 0
     m_transformMatrix:
       e00: 1
@@ -950,6 +1144,241 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 1
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 50
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 0
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 8
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 0
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0.55, y: 0.7, z: 0.35, w: 0.8}
+      TemperatureRange: {x: 0.35, y: 0.3, z: 0.4, w: 0.35}
+      MoistureCenter: {x: 0.45, y: 0.15, z: 0.6, w: 0.8}
+      MoistureRange: {x: 0.35, y: 0.25, z: 0.35, w: 0.35}
+      WeightSharpness: {x: 2, y: 2.5, z: 2.2, w: 1.8}
+      WeightGain: 1
+      BiomeCount: 4
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 9
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 0
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 17, y: 28, z: 11, w: 17}
+      HeightOffset: {x: 4, y: 12, z: 6, w: 7}
+      BaseFrequencyX: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      BaseFrequencyY: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      BaseFrequencyZ: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      WarpStrength: {x: 14, y: 12, z: 8, w: 17}
+      WarpFrequencyX: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      WarpFrequencyY: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      WarpFrequencyZ: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      MixStrength: 1
+      BiomeCount: 4
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 3
     m_transformMatrix:
       e00: 1
@@ -1011,6 +1440,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 5
     m_transformMatrix:
       e00: 1
@@ -1072,6 +1514,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 6
     m_transformMatrix:
       e00: 1
@@ -1133,6 +1588,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 0
     m_transformMatrix:
       e00: 1
@@ -1194,6 +1662,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 1
     m_transformMatrix:
       e00: 1
@@ -1203,7 +1684,7 @@ MonoBehaviour:
       e10: 0
       e11: 1
       e12: 0
-      e13: -10
+      e13: 50
       e20: 0
       e21: 0
       e22: 1
@@ -1255,6 +1736,167 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 8
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 0
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0.55, y: 0.7, z: 0.35, w: 0.8}
+      TemperatureRange: {x: 0.35, y: 0.3, z: 0.4, w: 0.35}
+      MoistureCenter: {x: 0.45, y: 0.15, z: 0.6, w: 0.8}
+      MoistureRange: {x: 0.35, y: 0.25, z: 0.35, w: 0.35}
+      WeightSharpness: {x: 2, y: 2.5, z: 2.2, w: 1.8}
+      WeightGain: 1
+      BiomeCount: 4
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
+      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
+  - m_nodeType: 9
+    m_transformMatrix:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_noiseParameters:
+      m_seed: 0
+      m_noiseAxes: 0
+      m_noiseType: 0
+      m_numberOfOctaves: 0
+      m_initialAmplitude: 0
+      m_initialFrequency:
+        x: 0
+        y: 0
+        z: 0
+      m_persistence: 0
+      m_lacunarity:
+        x: 0
+        y: 0
+        z: 0
+    m_csgPrimitive:
+      m_primitiveType: 0
+    m_materialIndex: 0
+    m_csgOperator:
+      m_operatorIndex: 0
+      m_smoothing: 0
+    m_biomeMapParameters:
+      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
+      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
+      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
+      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
+      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
+      WeightGain: 0
+      BiomeCount: 0
+      Padding: {x: 0, y: 0}
+    m_biomeMixerParameters:
+      BaseAmplitude: {x: 17, y: 28, z: 11, w: 17}
+      HeightOffset: {x: 4, y: 12, z: 6, w: 7}
+      BaseFrequencyX: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      BaseFrequencyY: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      BaseFrequencyZ: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
+      WarpStrength: {x: 14, y: 12, z: 8, w: 17}
+      WarpFrequencyX: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      WarpFrequencyY: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      WarpFrequencyZ: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
+      MixStrength: 1
+      BiomeCount: 4
+      Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 2
     m_transformMatrix:
       e00: 1
@@ -1316,6 +1958,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 3
     m_transformMatrix:
       e00: 1
@@ -1377,6 +2032,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 5
     m_transformMatrix:
       e00: 1
@@ -1438,6 +2106,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 6
     m_transformMatrix:
       e00: 1
@@ -1499,6 +2180,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
   - m_nodeType: 7
     m_transformMatrix:
       e00: 1
@@ -1560,6 +2254,19 @@ MonoBehaviour:
       MixStrength: 0
       BiomeCount: 0
       Padding: {x: 0, y: 0}
+    m_mountainParameters:
+      Amplitude: {x: 0, y: 0, z: 0, w: 0}
+      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
+      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      MixStrength: 0
+      BiomeCount: 0
+      PlateauSlopeRangeDeg: {x: 0, y: 0}
 --- !u!114 &281790846129076961
 MonoBehaviour:
   m_ObjectHideFlags: 0

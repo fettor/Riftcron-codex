@@ -160,20 +160,19 @@ namespace Tuntenfisch.Voxels.Debugging
             RenderTexture.active = active;
         }
 
-        internal bool ConfigureGenerationKernel(ComputeShader compute, int kernel)
+        internal bool TryAcquireMask(out RenderTexture texture)
         {
             EnsureTexture(false);
 
             bool shouldCapture = m_enableOverlay && m_writeRequested && m_maskTexture != null;
-            compute.SetInt(ComputeShaderProperties.WriteMountainMask, shouldCapture ? 1 : 0);
-
             if (!shouldCapture)
             {
+                texture = null;
                 return false;
             }
 
             ClearTexture();
-            compute.SetTexture(kernel, ComputeShaderProperties.MountainMaskTexture, m_maskTexture);
+            texture = m_maskTexture;
             return true;
         }
 

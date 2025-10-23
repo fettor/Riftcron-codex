@@ -22,6 +22,7 @@ namespace Tuntenfisch.Voxels.Volume
         private int m_generateKernel = -1;
         private int m_csgKernel = -1;
         private MountainMaskOverlay m_mountainMaskOverlay;
+        private RenderTexture m_dummyMountainMask;
 
         private void Awake()
         {
@@ -31,12 +32,14 @@ namespace Tuntenfisch.Voxels.Volume
             m_voxelConfig.GenerationGraph.OnDirtied += ApplyGenerationGraph;
             ApplyGenerationGraph();
             m_mountainMaskOverlay = GetComponent<MountainMaskOverlay>();
+            EnsureDummyMountainMask();
         }
 
         private void OnDestroy()
         {
             m_voxelConfig.GenerationGraph.OnDirtied -= ApplyGenerationGraph;
             ReleaseBuffers();
+            ReleaseDummyMountainMask();
         }
 
         private void OnValidate()
@@ -66,14 +69,21 @@ namespace Tuntenfisch.Voxels.Volume
                 Debug.LogWarning("Chunk generation bindings are invalid. Region meta buffer missing.", this);
             }
 
+            EnsureDummyMountainMask();
             m_voxelConfig.VoxelVolumeConfig.Compute.SetVector(ComputeShaderProperties.VoxelVolumeToWorldSpaceOffset, (Vector3)worldPosition);
             m_voxelConfig.VoxelVolumeConfig.Compute.SetBuffer(m_generateKernel, ComputeShaderProperties.VoxelVolume, voxelVolumeBuffer);
             BindRegionData(bindings);
-            bool capturingMountainMask = m_mountainMaskOverlay != null && m_mountainMaskOverlay.ConfigureGenerationKernel(m_voxelConfig.VoxelVolumeConfig.Compute, m_generateKernel);
-            if (!capturingMountainMask)
+            bool capturingMountainMask = false;
+            RenderTexture maskTarget = m_dummyMountainMask;
+
+            if (m_mountainMaskOverlay != null && m_mountainMaskOverlay.TryAcquireMask(out RenderTexture overlayTexture))
             {
-                m_voxelConfig.VoxelVolumeConfig.Compute.SetInt(ComputeShaderProperties.WriteMountainMask, 0);
+                maskTarget = overlayTexture;
+                capturingMountainMask = true;
             }
+
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetTexture(m_generateKernel, ComputeShaderProperties.MountainMaskTexture, maskTarget);
+            m_voxelConfig.VoxelVolumeConfig.Compute.SetInt(ComputeShaderProperties.WriteMountainMask, capturingMountainMask ? 1 : 0);
             m_voxelConfig.VoxelVolumeConfig.Compute.Dispatch(m_generateKernel, m_voxelConfig.VoxelVolumeConfig.NumberOfVoxels);
         }
 
@@ -139,6 +149,42 @@ namespace Tuntenfisch.Voxels.Volume
                 m_voxelVolumeCSGOperationsBuffer.Release();
                 m_voxelVolumeCSGOperationsBuffer = null;
             }
+        }
+
+        private void EnsureDummyMountainMask()
+        {
+            if (m_dummyMountainMask != null)
+            {
+                return;
+            }
+
+            m_dummyMountainMask = new RenderTexture(1, 1, 0, RenderTextureFormat.ARGBHalf)
+            {
+                enableRandomWrite = true,
+                dimension = UnityEngine.Rendering.TextureDimension.Tex2D,
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point,
+                name = "DummyMountainMask"
+            };
+            m_dummyMountainMask.Create();
+        }
+
+        private void ReleaseDummyMountainMask()
+        {
+            if (m_dummyMountainMask == null)
+            {
+                return;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(m_dummyMountainMask);
+            }
+            else
+            {
+                DestroyImmediate(m_dummyMountainMask);
+            }
+            m_dummyMountainMask = null;
         }
 
         private void ApplyGenerationGraph()
