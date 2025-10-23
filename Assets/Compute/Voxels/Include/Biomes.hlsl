@@ -316,6 +316,21 @@ float GetBiomeWarpMixStrength()
     return g_biomeContext.mixStrength * g_biomeContext.warpAttenuation;
 }
 
+float GetBiomePrimaryWeight()
+{
+    return g_biomeContext.primaryWeight;
+}
+
+float GetBiomeSecondaryWeight()
+{
+    return g_biomeContext.secondaryWeight;
+}
+
+float GetBiomeDominance()
+{
+    return saturate(g_biomeContext.primaryWeight - g_biomeContext.secondaryWeight);
+}
+
 float SampleClimate(Texture2D<float4> climateTex, float2 uv)
 {
     return climateTex.SampleLevel(samplerLinearClamp, uv, 0.0f).x;

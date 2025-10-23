@@ -179,7 +179,7 @@ MonoBehaviour:
   m_lodDistances:
   - 200
   - 400
-  - 1500
+  - 800
   m_chunksAboveViewer: 2
   m_chunksBelowViewer: 2
 --- !u!114 &337836006
@@ -267,7 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.World.Planning.ClimateProvider
   m_tileResolution: 128
   m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
-  m_voxelConfig: {fileID: 0}
+  m_voxelConfig: {fileID: 337836009}
   m_temperatureNoise:
     m_frequency: 0.0008
     m_octaves: 4

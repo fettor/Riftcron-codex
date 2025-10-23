@@ -114,7 +114,7 @@ MonoBehaviour:
   m_position: 0
   m_output: 0
   m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
-  m_mixStrength: 1
+  m_mixStrength: 0.5
 --- !u!114 &-6033972957997777016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,13 +167,13 @@ MonoBehaviour:
     m_seed: 1337
     m_octaves: 6
     m_initialAmplitude: 1
-    m_initialFrequency: {x: 0.0016, y: 0, z: 0.0016}
-    m_persistence: 0.5
+    m_initialFrequency: {x: 0.00016, y: 0, z: 0.00016}
+    m_persistence: 0.448
     m_lacunarity: {x: 2, y: 2, z: 2}
   m_mixStrength: 1
-  m_plateauSlopeLow: 6
+  m_plateauSlopeLow: 2
   m_plateauSlopeHigh: 18
-  m_writeMountainMask: 0
+  m_writeMountainMask: 1
 --- !u!114 &-5024580299425895458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -827,11 +827,11 @@ MonoBehaviour:
       m_operatorIndex: 0
       m_smoothing: 0
     m_biomeMapParameters:
-      TemperatureCenter: {x: 0.55, y: 0.7, z: 0.35, w: 0.8}
-      TemperatureRange: {x: 0.35, y: 0.3, z: 0.4, w: 0.35}
-      MoistureCenter: {x: 0.45, y: 0.15, z: 0.6, w: 0.8}
-      MoistureRange: {x: 0.35, y: 0.25, z: 0.35, w: 0.35}
-      WeightSharpness: {x: 2, y: 2.5, z: 2.2, w: 1.8}
+      TemperatureCenter: {x: 0.7, y: 0.55, z: 0.35, w: 0.8}
+      TemperatureRange: {x: 0.3, y: 0.35, z: 0.4, w: 0.35}
+      MoistureCenter: {x: 0.15, y: 0.45, z: 0.6, w: 0.8}
+      MoistureRange: {x: 0.25, y: 0.35, z: 0.35, w: 0.35}
+      WeightSharpness: {x: 2, y: 2, z: 2, w: 2}
       WeightGain: 1
       BiomeCount: 4
       Padding: {x: 0, y: 0}
@@ -910,16 +910,16 @@ MonoBehaviour:
       BiomeCount: 0
       Padding: {x: 0, y: 0}
     m_biomeMixerParameters:
-      BaseAmplitude: {x: 17, y: 28, z: 11, w: 17}
-      HeightOffset: {x: 4, y: 12, z: 6, w: 7}
-      BaseFrequencyX: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      BaseFrequencyY: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      BaseFrequencyZ: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      WarpStrength: {x: 14, y: 12, z: 8, w: 17}
+      BaseAmplitude: {x: 28, y: 17, z: 11, w: 17}
+      HeightOffset: {x: 12, y: 4, z: 6, w: 7}
+      BaseFrequencyX: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      BaseFrequencyY: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      BaseFrequencyZ: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      WarpStrength: {x: 12, y: 14, z: 8, w: 17}
       WarpFrequencyX: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
       WarpFrequencyY: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
       WarpFrequencyZ: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
-      MixStrength: 1
+      MixStrength: 0.5
       BiomeCount: 4
       Padding: {x: 0, y: 0}
     m_mountainParameters:
@@ -960,10 +960,10 @@ MonoBehaviour:
       m_numberOfOctaves: 6
       m_initialAmplitude: 1
       m_initialFrequency:
-        x: 0.0016
+        x: 0.00016
         y: 0
-        z: 0.0016
-      m_persistence: 0.5
+        z: 0.00016
+      m_persistence: 0.448
       m_lacunarity:
         x: 2
         y: 2
@@ -997,15 +997,15 @@ MonoBehaviour:
       BiomeCount: 0
       Padding: {x: 0, y: 0}
     m_mountainParameters:
-      Amplitude: {x: 120, y: 48, z: 260, w: 84}
-      RidgeSharpness: {x: 1.1, y: 1.35, z: 1.7, w: 1.25}
-      FrequencyX: {x: 0.0014, y: 0.0011, z: 0.0018, w: 0.0016}
-      FrequencyY: {x: 0.001, y: 0.0009, z: 0.0013, w: 0.0011}
-      FrequencyZ: {x: 0.0014, y: 0.001, z: 0.0017, w: 0.0016}
-      WarpStrength: {x: 36, y: 28, z: 58, w: 44}
-      WarpFrequencyX: {x: 0.0009, y: 0.0007, z: 0.0013, w: 0.0011}
-      WarpFrequencyY: {x: 0.0007, y: 0.0006, z: 0.001, w: 0.0008}
-      WarpFrequencyZ: {x: 0.0009, y: 0.0006, z: 0.0012, w: 0.0011}
+      Amplitude: {x: 12, y: 112, z: 12, w: 12}
+      RidgeSharpness: {x: 1.35, y: 1, z: 1.7, w: 1.25}
+      FrequencyX: {x: 0.0011, y: 0.00014, z: 0.0018, w: 0.0016}
+      FrequencyY: {x: 0.0009, y: 0.00014, z: 0.0013, w: 0.0011}
+      FrequencyZ: {x: 0.001, y: 0.00014, z: 0.0017, w: 0.0016}
+      WarpStrength: {x: 28, y: 34, z: 58, w: 44}
+      WarpFrequencyX: {x: 0.0007, y: 0.0009, z: 0.0013, w: 0.0011}
+      WarpFrequencyY: {x: 0.0006, y: 0.0009, z: 0.001, w: 0.0008}
+      WarpFrequencyZ: {x: 0.0006, y: 0.0009, z: 0.0012, w: 0.0011}
       MixStrength: 1
       BiomeCount: 4
       PlateauSlopeRangeDeg: {x: 6, y: 18}
@@ -1271,11 +1271,11 @@ MonoBehaviour:
       m_operatorIndex: 0
       m_smoothing: 0
     m_biomeMapParameters:
-      TemperatureCenter: {x: 0.55, y: 0.7, z: 0.35, w: 0.8}
-      TemperatureRange: {x: 0.35, y: 0.3, z: 0.4, w: 0.35}
-      MoistureCenter: {x: 0.45, y: 0.15, z: 0.6, w: 0.8}
-      MoistureRange: {x: 0.35, y: 0.25, z: 0.35, w: 0.35}
-      WeightSharpness: {x: 2, y: 2.5, z: 2.2, w: 1.8}
+      TemperatureCenter: {x: 0.7, y: 0.55, z: 0.35, w: 0.8}
+      TemperatureRange: {x: 0.3, y: 0.35, z: 0.4, w: 0.35}
+      MoistureCenter: {x: 0.15, y: 0.45, z: 0.6, w: 0.8}
+      MoistureRange: {x: 0.25, y: 0.35, z: 0.35, w: 0.35}
+      WeightSharpness: {x: 2, y: 2, z: 2, w: 2}
       WeightGain: 1
       BiomeCount: 4
       Padding: {x: 0, y: 0}
@@ -1354,16 +1354,16 @@ MonoBehaviour:
       BiomeCount: 0
       Padding: {x: 0, y: 0}
     m_biomeMixerParameters:
-      BaseAmplitude: {x: 17, y: 28, z: 11, w: 17}
-      HeightOffset: {x: 4, y: 12, z: 6, w: 7}
-      BaseFrequencyX: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      BaseFrequencyY: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      BaseFrequencyZ: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      WarpStrength: {x: 14, y: 12, z: 8, w: 17}
+      BaseAmplitude: {x: 28, y: 17, z: 11, w: 17}
+      HeightOffset: {x: 12, y: 4, z: 6, w: 7}
+      BaseFrequencyX: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      BaseFrequencyY: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      BaseFrequencyZ: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      WarpStrength: {x: 12, y: 14, z: 8, w: 17}
       WarpFrequencyX: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
       WarpFrequencyY: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
       WarpFrequencyZ: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
-      MixStrength: 1
+      MixStrength: 0.5
       BiomeCount: 4
       Padding: {x: 0, y: 0}
     m_mountainParameters:
@@ -1789,11 +1789,11 @@ MonoBehaviour:
       m_operatorIndex: 0
       m_smoothing: 0
     m_biomeMapParameters:
-      TemperatureCenter: {x: 0.55, y: 0.7, z: 0.35, w: 0.8}
-      TemperatureRange: {x: 0.35, y: 0.3, z: 0.4, w: 0.35}
-      MoistureCenter: {x: 0.45, y: 0.15, z: 0.6, w: 0.8}
-      MoistureRange: {x: 0.35, y: 0.25, z: 0.35, w: 0.35}
-      WeightSharpness: {x: 2, y: 2.5, z: 2.2, w: 1.8}
+      TemperatureCenter: {x: 0.7, y: 0.55, z: 0.35, w: 0.8}
+      TemperatureRange: {x: 0.3, y: 0.35, z: 0.4, w: 0.35}
+      MoistureCenter: {x: 0.15, y: 0.45, z: 0.6, w: 0.8}
+      MoistureRange: {x: 0.25, y: 0.35, z: 0.35, w: 0.35}
+      WeightSharpness: {x: 2, y: 2, z: 2, w: 2}
       WeightGain: 1
       BiomeCount: 4
       Padding: {x: 0, y: 0}
@@ -1872,16 +1872,16 @@ MonoBehaviour:
       BiomeCount: 0
       Padding: {x: 0, y: 0}
     m_biomeMixerParameters:
-      BaseAmplitude: {x: 17, y: 28, z: 11, w: 17}
-      HeightOffset: {x: 4, y: 12, z: 6, w: 7}
-      BaseFrequencyX: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      BaseFrequencyY: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      BaseFrequencyZ: {x: 0.0022, y: 0.0018, z: 0.0026, w: 0.003}
-      WarpStrength: {x: 14, y: 12, z: 8, w: 17}
+      BaseAmplitude: {x: 28, y: 17, z: 11, w: 17}
+      HeightOffset: {x: 12, y: 4, z: 6, w: 7}
+      BaseFrequencyX: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      BaseFrequencyY: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      BaseFrequencyZ: {x: 0.0018, y: 0.0022, z: 0.0026, w: 0.003}
+      WarpStrength: {x: 12, y: 14, z: 8, w: 17}
       WarpFrequencyX: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
       WarpFrequencyY: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
       WarpFrequencyZ: {x: 0.008, y: 0.008, z: 0.0095, w: 0.0095}
-      MixStrength: 1
+      MixStrength: 0.5
       BiomeCount: 4
       Padding: {x: 0, y: 0}
     m_mountainParameters:
@@ -2156,7 +2156,7 @@ MonoBehaviour:
       m_primitiveType: 0
     m_materialIndex: 0
     m_csgOperator:
-      m_operatorIndex: 4
+      m_operatorIndex: 3
       m_smoothing: 5
     m_biomeMapParameters:
       TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
@@ -2409,7 +2409,7 @@ MonoBehaviour:
   m_position: 0
   m_output: 0
   m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
-  m_mixStrength: 1
+  m_mixStrength: 0.5
 --- !u!114 &3386780224256037567
 MonoBehaviour:
   m_ObjectHideFlags: 0

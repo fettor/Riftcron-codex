@@ -14,11 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_worldSeed: 1
   m_metersPerUnit: 1
-  m_chunkSizeInBlocks:
-    x: 32
-    y: 32
-    z: 32
-  m_regionSpanInChunks:
-    x: 8
-    y: 8
+  m_chunkSizeInBlocks: {x: 32, y: 32, z: 32}
+  m_regionSpanInChunks: {x: 8, y: 8}
   m_seaLevel: 0

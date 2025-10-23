@@ -21,6 +21,12 @@ static GPUMountainParameters g_activeMountainParameters;
 static float g_mountainMask = 0.0f;
 static float g_plateauMask = 0.0f;
 
+struct MountainSample
+{
+    float4 valueAndGrad;
+    float ridgeMask;
+};
+
 void ResetMountainDebug()
 {
     g_mountainMask = 0.0f;
@@ -35,6 +41,49 @@ float GetMountainMask()
 float GetPlateauMask()
 {
     return saturate(g_plateauMask);
+}
+
+MountainSample SampleMountainLayer(float3 position, NoiseParameters baseParameters, float amplitude, float3 frequency, float warpStrength, float3 warpFrequency, float ridgeSharpness)
+{
+    MountainSample result;
+    float3 warpedPosition = position;
+
+    if (warpStrength > 1e-3f)
+    {
+        NoiseParameters warpParameters = baseParameters;
+        warpParameters.noiseAxes = NoiseAxes::XYZ;
+        warpParameters.initialAmplitude = warpStrength;
+        warpParameters.initialFrequency = max(abs(warpFrequency), 1e-4f);
+        warpedPosition += EvaluateWarpOffset(position, warpParameters);
+    }
+
+    NoiseParameters sampleParameters = baseParameters;
+    sampleParameters.initialAmplitude = max(amplitude, 1e-3f);
+    sampleParameters.initialFrequency = max(abs(frequency), 1e-4f);
+    sampleParameters.noiseAxes = NoiseAxes::XZ;
+    sampleParameters.noiseType = NoiseType::Ridge;
+
+    float4 sample = GenerateFBMNoise(warpedPosition, sampleParameters);
+
+    float amplitudeMask = step(1e-4f, amplitude);
+    float amplitudeSafe = max(amplitude, 1e-3f);
+    float height = warpedPosition.y - sample.x;
+    float normalizedHeight = saturate(height / amplitudeSafe) * amplitudeMask;
+    float ridgePower = max(ridgeSharpness, 1.0f);
+    float safeNorm = max(normalizedHeight, 1e-4f);
+
+    float shapedNormRaw = pow(safeNorm, ridgePower);
+    float shapedNorm = lerp(normalizedHeight, shapedNormRaw, amplitudeMask);
+    float slopeMultiplier = lerp(1.0f, ridgePower * pow(safeNorm, ridgePower - 1.0f), amplitudeMask);
+
+    float shapedHeight = shapedNorm * amplitudeSafe;
+    float deltaHeight = (shapedHeight - height) * amplitudeMask;
+    sample.x -= deltaHeight;
+    sample.yzw *= slopeMultiplier;
+
+    result.valueAndGrad = sample;
+    result.ridgeMask = saturate(shapedNorm);
+    return result;
 }
 
 float3 GetMountainFrequency(uint index)
@@ -58,95 +107,68 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
     g_activeMountainParameters = mountainParameters;
     ResetMountainDebug();
 
-    float mixStrength = saturate(mountainParameters.mixStrength);
     uint availableBiomes = GetBiomeCount();
     uint biomeCount = min(mountainParameters.biomeCount, availableBiomes);
     float active = step(0.5f, (float)biomeCount);
+    float mixStrength = saturate(mountainParameters.mixStrength) * active;
 
-    float amplitudeSum = 0.0f;
-    float ridgeSharpnessSum = 0.0f;
-    float3 frequencySum = 0.0f;
-    float warpStrengthSum = 0.0f;
-    float3 warpFrequencySum = 0.0f;
-    float weightSum = 0.0f;
+    MountainSample baseSample = SampleMountainLayer(position, baseParameters, baseParameters.initialAmplitude, baseParameters.initialFrequency, 0.0f, baseParameters.initialFrequency, 1.0f);
+    float4 finalValue = baseSample.valueAndGrad;
+    float finalMask = baseSample.ridgeMask;
 
-    [unroll]
-    for (uint i = 0u; i < 4u; ++i)
+    float dominance = mixStrength > 1e-3f ? GetBiomeDominance() : 0.0f;
+    float warpAttenuation = GetBiomeWarpAttenuation();
+
+    if (mixStrength > 1e-3f && biomeCount > 0u)
     {
-        float mask = step((float)i, (float)biomeCount - 0.5f);
-        float contribution = GetBiomeWeightMasked(i) * mask;
-        amplitudeSum += mountainParameters.amplitude[i] * contribution;
-        ridgeSharpnessSum += mountainParameters.ridgeSharpness[i] * contribution;
-        frequencySum += GetMountainFrequency(i) * contribution;
-        warpStrengthSum += mountainParameters.warpStrength[i] * contribution;
-        warpFrequencySum += GetMountainWarpFrequency(i) * contribution;
-        weightSum += contribution;
+        float4 blendedValue = 0.0f;
+        float blendedMask = 0.0f;
+        float weightSum = 0.0f;
+
+        [unroll]
+        for (uint i = 0u; i < 4u; ++i)
+        {
+            float enabled = step((float)i, (float)biomeCount - 0.5f);
+            float weight = GetBiomeWeightMasked(i) * enabled;
+
+            if (weight <= 1e-4f)
+            {
+                continue;
+            }
+
+            float amplitude = mountainParameters.amplitude[i];
+            float ridgeSharpness = max(mountainParameters.ridgeSharpness[i], 1.0f);
+            float3 frequency = GetMountainFrequency(i);
+            float warpStrength = mountainParameters.warpStrength[i] * warpAttenuation * dominance;
+            float3 warpFrequency = GetMountainWarpFrequency(i);
+
+            MountainSample sample = SampleMountainLayer(position, baseParameters, amplitude, frequency, warpStrength, warpFrequency, ridgeSharpness);
+            blendedValue += sample.valueAndGrad * weight;
+            blendedMask += sample.ridgeMask * weight;
+            weightSum += weight;
+        }
+
+        if (weightSum > 1e-4f)
+        {
+            float invWeight = rcp(weightSum);
+            blendedValue *= invWeight;
+            blendedMask *= invWeight;
+            finalValue = lerp(baseSample.valueAndGrad, blendedValue, mixStrength);
+            finalMask = lerp(baseSample.ridgeMask, blendedMask, mixStrength);
+        }
     }
 
-    float invWeight = weightSum > 1e-4f ? rcp(weightSum) : 0.0f;
-    float amplitudeTarget = amplitudeSum * invWeight;
-    float ridgeSharpnessTarget = ridgeSharpnessSum * invWeight;
-    float3 frequencyTarget = frequencySum * invWeight;
-    float warpStrengthTarget = warpStrengthSum * invWeight;
-    float3 warpFrequencyTarget = warpFrequencySum * invWeight;
-
-    float biomeMix = mixStrength * active;
-    float baseAmplitude = baseParameters.initialAmplitude;
-    float amplitudeScale = lerp(1.0f, amplitudeTarget, biomeMix);
-    float finalAmplitude = baseAmplitude * amplitudeScale;
-    float3 finalFrequency = lerp(baseParameters.initialFrequency, frequencyTarget, biomeMix);
-    float finalRidgeSharpness = lerp(1.0f, ridgeSharpnessTarget, biomeMix);
-    float warpAttenuation = GetBiomeWarpAttenuation();
-    float finalWarpStrength = lerp(0.0f, warpStrengthTarget, biomeMix) * warpAttenuation;
-    float3 finalWarpFrequency = lerp(finalFrequency, warpFrequencyTarget, biomeMix);
-
-    finalFrequency = max(finalFrequency, 1e-4f);
-    finalWarpFrequency = max(finalWarpFrequency, 1e-4f);
-    finalRidgeSharpness = max(finalRidgeSharpness, 1.0f);
-
-    NoiseParameters warpParameters = baseParameters;
-    warpParameters.noiseAxes = NoiseAxes::XYZ;
-    warpParameters.initialAmplitude = finalWarpStrength;
-    warpParameters.initialFrequency = finalWarpFrequency;
-    float3 warpedPosition = position + EvaluateWarpOffset(position, warpParameters);
-
-    NoiseParameters sampleParameters = baseParameters;
-    sampleParameters.initialAmplitude = finalAmplitude;
-    sampleParameters.initialFrequency = finalFrequency;
-    sampleParameters.noiseAxes = NoiseAxes::XZ;
-    sampleParameters.noiseType = NoiseType::Ridge;
-
-    float4 sample = GenerateFBMNoise(warpedPosition, sampleParameters);
-
-    float amplitudeMask = step(1e-4f, finalAmplitude);
-    float amplitudeSafe = max(finalAmplitude, 1e-3f);
-    float height = warpedPosition.y - sample.x;
-    float normalizedHeight = saturate(height / amplitudeSafe) * amplitudeMask;
-    float normalizedMask = step(1e-4f, normalizedHeight);
-    float safeNorm = max(normalizedHeight, 1e-4f);
-    float shapedNorm = pow(safeNorm, finalRidgeSharpness);
-    float shapingFactor = finalRidgeSharpness * pow(safeNorm, max(finalRidgeSharpness - 1.0f, 0.0f));
-    shapedNorm = lerp(normalizedHeight, shapedNorm, normalizedMask);
-    shapingFactor = lerp(1.0f, shapingFactor, normalizedMask);
-
-    float shapedHeight = shapedNorm * amplitudeSafe;
-    float deltaHeight = (shapedHeight - height) * amplitudeMask;
-    sample.x -= deltaHeight;
-    sample.y *= shapingFactor;
-    sample.w *= shapingFactor;
-    sample.z = 1.0f;
-
-    float dhdx = -sample.y;
-    float dhdz = -sample.w;
+    float dhdx = -finalValue.y;
+    float dhdz = -finalValue.w;
     float slopeMagnitude = sqrt(dhdx * dhdx + dhdz * dhdz);
     float slopeAngleDeg = degrees(atan(slopeMagnitude));
     float2 plateauRange = mountainParameters.plateauSlopeRangeDeg;
     float plateau = 1.0f - smoothstep(plateauRange.x, plateauRange.y, slopeAngleDeg);
 
-    g_mountainMask = saturate(shapedNorm * biomeMix);
+    g_mountainMask = saturate(finalMask);
     g_plateauMask = saturate(plateau);
 
-    valueAndGrad = sample;
+    valueAndGrad = finalValue;
 }
 
 #endif // TUNTENFISCH_VOXELS_MOUNTAINS
