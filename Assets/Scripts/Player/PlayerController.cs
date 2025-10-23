@@ -101,6 +101,7 @@ namespace Tuntenfisch.Player
 
             InitializeSelectionHologram();
             UpdateModeUI();
+            SetFlyMode(true);
         }
 
         private void OnDestroy()
@@ -137,20 +138,30 @@ namespace Tuntenfisch.Player
         {
             if (value.isPressed)
             {
-                m_flyModeEnabled = !m_flyModeEnabled;
-                m_flyUpPressed = false;
-                m_flyDownPressed = false;
-                m_flyUpActionHeld = false;
-                m_flyDownActionHeld = false;
-                m_wantsToJump = false;
-                m_velocity = 0.0f;
-                m_isDraggingSelection = false;
+                SetFlyMode(!m_flyModeEnabled);
             }
         }
 
         public void OnFlyUp(InputValue value) => m_flyUpActionHeld = value.isPressed;
 
         public void OnFlyDown(InputValue value) => m_flyDownActionHeld = value.isPressed;
+
+        private void SetFlyMode(bool enabled)
+        {
+            if (m_flyModeEnabled == enabled)
+            {
+                return;
+            }
+
+            m_flyModeEnabled = enabled;
+            m_flyUpPressed = false;
+            m_flyDownPressed = false;
+            m_flyUpActionHeld = false;
+            m_flyDownActionHeld = false;
+            m_wantsToJump = false;
+            m_velocity = 0.0f;
+            m_isDraggingSelection = false;
+        }
 
         private void UpdateInputState()
         {
