@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 337836010}
   - component: {fileID: 337836011}
   - component: {fileID: 337836012}
+  - component: {fileID: 337836013}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -266,6 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.World.Planning.ClimateProvider
   m_tileResolution: 128
   m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
+  m_voxelConfig: {fileID: 0}
   m_temperatureNoise:
     m_frequency: 0.0008
     m_octaves: 4
@@ -299,6 +301,20 @@ MonoBehaviour:
   m_showOverlay: 1
   m_regionGridRadius: 1
   m_drawRegionGrid: 1
+--- !u!114 &337836013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337836003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6662513cfcc346128560d152066618c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Debugging.MountainMaskOverlay
+  m_enableOverlay: 1
+  m_overlaySize: 256
 --- !u!1 &430985030
 GameObject:
   m_ObjectHideFlags: 0

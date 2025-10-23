@@ -162,7 +162,7 @@ MonoBehaviour:
   m_valueAndGradient:
     x: 0
     y: 0
-  m_biomeLibrary: {fileID: 0}
+  m_biomeLibrary: {fileID: 11400000, guid: d6da57ea6072471bbb49431ad70b8765, type: 2}
   m_baseRidgedSettings:
     m_seed: 1337
     m_octaves: 6
@@ -997,17 +997,17 @@ MonoBehaviour:
       BiomeCount: 0
       Padding: {x: 0, y: 0}
     m_mountainParameters:
-      Amplitude: {x: 0, y: 0, z: 0, w: 0}
-      RidgeSharpness: {x: 0, y: 0, z: 0, w: 0}
-      FrequencyX: {x: 0, y: 0, z: 0, w: 0}
-      FrequencyY: {x: 0, y: 0, z: 0, w: 0}
-      FrequencyZ: {x: 0, y: 0, z: 0, w: 0}
-      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
-      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
-      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
-      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
+      Amplitude: {x: 120, y: 48, z: 260, w: 84}
+      RidgeSharpness: {x: 1.1, y: 1.35, z: 1.7, w: 1.25}
+      FrequencyX: {x: 0.0014, y: 0.0011, z: 0.0018, w: 0.0016}
+      FrequencyY: {x: 0.001, y: 0.0009, z: 0.0013, w: 0.0011}
+      FrequencyZ: {x: 0.0014, y: 0.001, z: 0.0017, w: 0.0016}
+      WarpStrength: {x: 36, y: 28, z: 58, w: 44}
+      WarpFrequencyX: {x: 0.0009, y: 0.0007, z: 0.0013, w: 0.0011}
+      WarpFrequencyY: {x: 0.0007, y: 0.0006, z: 0.001, w: 0.0008}
+      WarpFrequencyZ: {x: 0.0009, y: 0.0006, z: 0.0012, w: 0.0011}
       MixStrength: 1
-      BiomeCount: 0
+      BiomeCount: 4
       PlateauSlopeRangeDeg: {x: 6, y: 18}
   - m_nodeType: 5
     m_transformMatrix:
