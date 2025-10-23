@@ -546,7 +546,7 @@ MonoBehaviour:
     y: 0
     z: 0
   m_csgOperator:
-    m_operatorIndex: 4
+    m_operatorIndex: 3
     m_smoothing: 5
 --- !u!114 &-1411315570092343662
 MonoBehaviour:
