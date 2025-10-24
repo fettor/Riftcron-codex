@@ -466,5 +466,25 @@ namespace Tuntenfisch.World
                 chunk.RegenerateMesh();
             }
         }
+
+#if UNITY_EDITOR
+        public void RegenerateAllChunks()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning("Chunk regeneration can only be triggered in Play Mode.", this);
+                return;
+            }
+
+            if (m_voxelConfig == null)
+            {
+                Debug.LogWarning("VoxelConfig is missing; cannot regenerate chunks.", this);
+                return;
+            }
+
+            m_voxelConfig.GenerationGraph.Rebuild();
+            ApplySettings();
+        }
+#endif
     }
 }
