@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 337836011}
   - component: {fileID: 337836012}
   - component: {fileID: 337836013}
+  - component: {fileID: 337836014}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -276,7 +277,7 @@ MonoBehaviour:
     m_amplitude: 0.55
   m_temperatureBias: 0
   m_moistureNoise:
-    m_frequency: 0.001
+    m_frequency: 0.0005
     m_octaves: 4
     m_persistence: 0.8
     m_lacunarity: 2.15
@@ -315,6 +316,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Debugging.MountainMaskOverlay
   m_enableOverlay: 1
   m_overlaySize: 256
+--- !u!114 &337836014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337836003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 122b8ece8fbb424b8b3f8221310190bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.World.WorldChunkRegenerator
+  m_regenerateKey: 102
+  m_showOverlay: 1
+  m_overlayText: Regenerating chunks...
+  m_overlayHoldDuration: 1.5
 --- !u!1 &430985030
 GameObject:
   m_ObjectHideFlags: 0

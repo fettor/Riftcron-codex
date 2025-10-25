@@ -102,16 +102,15 @@ namespace Tuntenfisch.Voxels.Procedural
     public struct GPUMountainParameters
     {
         public Vector4 Amplitude;
-        public Vector4 RidgeSharpness;
-        public Vector4 FrequencyX;
-        public Vector4 FrequencyY;
-        public Vector4 FrequencyZ;
-        public Vector4 WarpStrength;
-        public Vector4 WarpFrequencyX;
-        public Vector4 WarpFrequencyY;
-        public Vector4 WarpFrequencyZ;
-        public float MixStrength;
+        public Vector4 RemapExponent;
+        public Vector4 TerraceSteps;
+        public Vector4 TerraceBias;
+        public Vector4 BaseParameters;
+        public Vector4 WarpParameters;
+        public Vector4 ExtraParameters0;
+        public Vector4 ExtraParameters1;
         public uint BiomeCount;
-        public Vector2 PlateauSlopeRangeDeg;
+        public uint WarpSeed;
+        public Vector2 Padding;
     }
 }

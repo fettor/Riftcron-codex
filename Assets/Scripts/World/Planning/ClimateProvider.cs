@@ -160,7 +160,7 @@ namespace Tuntenfisch.World.Planning
             };
 
             texture.SetPixels(pixels);
-            texture.Apply(false, true);
+            texture.Apply(false, false);
             return texture;
         }
 

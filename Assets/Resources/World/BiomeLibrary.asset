@@ -34,17 +34,10 @@ MonoBehaviour:
         y: 0.008
         z: 0.008
       m_mountains:
-        m_amplitude: 12
-        m_ridgeSharpness: 1.35
-        m_frequency:
-          x: 0.0011
-          y: 0.0009
-          z: 0.001
-        m_warpStrength: 28
-        m_warpFrequency:
-          x: 0.0007
-          y: 0.0006
-          z: 0.0006
+        m_amplitude: 48
+        m_remapExponent: 1.35
+        m_terraceSteps: 5
+        m_terraceBias: 0.3
   - m_id: Temperate Plains
     m_debugColor: {r: 0.4, g: 0.8, b: 0.3, a: 1}
     m_climate:
@@ -66,17 +59,10 @@ MonoBehaviour:
         y: 0.008
         z: 0.008
       m_mountains:
-        m_amplitude: 112
-        m_ridgeSharpness: 1
-        m_frequency:
-          x: 0.00014
-          y: 0.00014
-          z: 0.00014
-        m_warpStrength: 34
-        m_warpFrequency:
-          x: 0.0009
-          y: 0.0009
-          z: 0.0009
+        m_amplitude: 120
+        m_remapExponent: 1.1
+        m_terraceSteps: 6
+        m_terraceBias: 0.35
   - m_id: Boreal
     m_debugColor: {r: 0.4, g: 0.6, b: 0.9, a: 1}
     m_climate:
@@ -98,17 +84,10 @@ MonoBehaviour:
         y: 0.0095
         z: 0.0095
       m_mountains:
-        m_amplitude: 12
-        m_ridgeSharpness: 1.7
-        m_frequency:
-          x: 0.0018
-          y: 0.0013
-          z: 0.0017
-        m_warpStrength: 58
-        m_warpFrequency:
-          x: 0.0013
-          y: 0.001
-          z: 0.0012
+        m_amplitude: 260
+        m_remapExponent: 1.7
+        m_terraceSteps: 7
+        m_terraceBias: 0.32
   - m_id: Tropical Wetlands
     m_debugColor: {r: 0.25, g: 0.55, b: 0.35, a: 1}
     m_climate:
@@ -130,14 +109,7 @@ MonoBehaviour:
         y: 0.0095
         z: 0.0095
       m_mountains:
-        m_amplitude: 12
-        m_ridgeSharpness: 1.25
-        m_frequency:
-          x: 0.0016
-          y: 0.0011
-          z: 0.0016
-        m_warpStrength: 44
-        m_warpFrequency:
-          x: 0.0011
-          y: 0.0008
-          z: 0.0011
+        m_amplitude: 84
+        m_remapExponent: 1.25
+        m_terraceSteps: 5
+        m_terraceBias: 0.4

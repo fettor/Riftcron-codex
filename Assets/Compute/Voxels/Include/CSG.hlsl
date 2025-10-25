@@ -51,15 +51,16 @@ Voxel Difference(Voxel lhs, Voxel rhs)
 
 Voxel SmoothUnion(Voxel lhs, Voxel rhs, float smoothing)
 {
-    float h = max(smoothing - abs(lhs.GetValue() - rhs.GetValue()), 0.0f);
-    float m = 0.25f * h * h / smoothing;
-    float n = 0.50f * h / smoothing;
+    float safeK = max(smoothing, 1e-4f);
+    float invK = rcp(safeK);
+    float2 weights = exp2(-float2(lhs.GetValue(), rhs.GetValue()) * invK);
+    float weightSum = max(weights.x + weights.y, 1e-4f);
 
-    Voxel voxel = Voxel::Create();
-    voxel.valueAndGradient = float4(min(lhs.GetValue(), rhs.GetValue()) - m, lerp(lhs.GetGradient(), rhs.GetGradient(), lhs.GetValue() < rhs.GetValue() ? n : 1.0f - n));
-    voxel.materialIndex = lhs.GetValue() < rhs.GetValue() ? lhs.materialIndex : rhs.materialIndex;
+    float value = -safeK * log2(weightSum);
+    float3 gradient = (lhs.GetGradient() * weights.x + rhs.GetGradient() * weights.y) / weightSum;
+    uint materialIndex = weights.x >= weights.y ? lhs.materialIndex : rhs.materialIndex;
 
-    return voxel;
+    return Voxel::Create(float4(value, gradient), materialIndex);
 }
 
 Voxel SmoothIntersection(Voxel lhs, Voxel rhs, float smoothing)

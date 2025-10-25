@@ -224,53 +224,53 @@ namespace Tuntenfisch.Voxels.Procedural
             GPUMountainParameters parameters = default;
             BiomeLibrary library = node.BiomeLibrary;
 
-            parameters.MixStrength = Mathf.Clamp01(node.MixStrength);
             Vector2 plateauRange = node.PlateauSlopeRange;
             float low = Mathf.Clamp(plateauRange.x, 0.0f, 90.0f);
             float high = Mathf.Clamp(Mathf.Max(plateauRange.y, low + 0.1f), 0.0f, 90.0f);
-            parameters.PlateauSlopeRangeDeg = new Vector2(low, high);
+            parameters.BaseParameters = new Vector4(node.BaseAmplitude, node.BaseRemapExponent, node.BaseTerraceSteps, node.BaseTerraceBias);
+            float largeWarpAmplitude = node.LargeWarpAmplitude;
+            float largeWarpFrequency = node.LargeWarpFrequency;
+            float detailWarpAmplitude = node.DetailWarpAmplitude;
+            float detailWarpFrequency = node.DetailWarpFrequency;
+            parameters.WarpParameters = new Vector4(largeWarpAmplitude, largeWarpFrequency, detailWarpAmplitude, detailWarpFrequency);
+            parameters.ExtraParameters0 = new Vector4(Mathf.Clamp01(node.MixStrength), node.TerracePower, 0.0f, 0.0f);
+            parameters.ExtraParameters1 = new Vector4(low, high, 0.0f, 0.0f);
+            parameters.WarpSeed = node.DetailWarpSeedOffset;
+            parameters.Padding = Vector2.zero;
 
             if (library == null || library.BiomeCount == 0)
             {
+                float baseExponent = node.BaseRemapExponent;
+                float baseSteps = node.BaseTerraceSteps;
+                float baseBias = node.BaseTerraceBias;
+                parameters.Amplitude = Vector4.zero;
+                parameters.RemapExponent = new Vector4(baseExponent, baseExponent, baseExponent, baseExponent);
+                parameters.TerraceSteps = new Vector4(baseSteps, baseSteps, baseSteps, baseSteps);
+                parameters.TerraceBias = new Vector4(baseBias, baseBias, baseBias, baseBias);
                 parameters.BiomeCount = 0u;
                 return parameters;
             }
 
             int count = library.BiomeCount;
             Vector4 amplitude = Vector4.zero;
-            Vector4 ridgeSharpness = Vector4.one;
-            Vector4 frequencyX = Vector4.zero;
-            Vector4 frequencyY = Vector4.zero;
-            Vector4 frequencyZ = Vector4.zero;
-            Vector4 warpStrength = Vector4.zero;
-            Vector4 warpFrequencyX = Vector4.zero;
-            Vector4 warpFrequencyY = Vector4.zero;
-            Vector4 warpFrequencyZ = Vector4.zero;
+            Vector4 remapExponent = Vector4.one * node.BaseRemapExponent;
+            Vector4 terraceSteps = Vector4.one * node.BaseTerraceSteps;
+            Vector4 terraceBias = Vector4.one * node.BaseTerraceBias;
 
             for (int i = 0; i < count; ++i)
             {
                 BiomeDefinition biome = library.GetBiome(i);
                 BiomeMountainParameters mountains = biome.Terrain.Mountains;
                 amplitude[i] = Mathf.Max(0.0f, mountains.Amplitude);
-                ridgeSharpness[i] = Mathf.Max(1.0f, mountains.RidgeSharpness);
-                frequencyX[i] = mountains.Frequency.x;
-                frequencyY[i] = mountains.Frequency.y;
-                frequencyZ[i] = mountains.Frequency.z;
-                warpStrength[i] = Mathf.Max(0.0f, mountains.WarpStrength);
-                warpFrequencyX[i] = mountains.WarpFrequency.x;
-                warpFrequencyY[i] = mountains.WarpFrequency.y;
-                warpFrequencyZ[i] = mountains.WarpFrequency.z;
+                remapExponent[i] = Mathf.Max(0.25f, mountains.RemapExponent);
+                terraceSteps[i] = Mathf.Max(1.0f, mountains.TerraceSteps);
+                terraceBias[i] = Mathf.Clamp01(mountains.TerraceBias);
             }
 
             parameters.Amplitude = amplitude;
-            parameters.RidgeSharpness = ridgeSharpness;
-            parameters.FrequencyX = frequencyX;
-            parameters.FrequencyY = frequencyY;
-            parameters.FrequencyZ = frequencyZ;
-            parameters.WarpStrength = warpStrength;
-            parameters.WarpFrequencyX = warpFrequencyX;
-            parameters.WarpFrequencyY = warpFrequencyY;
-            parameters.WarpFrequencyZ = warpFrequencyZ;
+            parameters.RemapExponent = remapExponent;
+            parameters.TerraceSteps = terraceSteps;
+            parameters.TerraceBias = terraceBias;
             parameters.BiomeCount = (uint)count;
             return parameters;
         }

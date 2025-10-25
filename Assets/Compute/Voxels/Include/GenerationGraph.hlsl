@@ -234,8 +234,6 @@ Voxel EvaluateGenerationGraph(float3 position)
             {
                 float3 mountainPosition = stack.PopPosition();
                 NoiseParameters baseParameters = node.noiseParameters;
-                baseParameters.noiseAxes = NoiseAxes::XZ;
-                baseParameters.noiseType = NoiseType::Ridge;
                 float4 mountainValue;
                 EvaluateMountain(mountainPosition, baseParameters, node.mountainParameters, mountainValue);
                 stack.PushValueAndGradient(mountainValue);
