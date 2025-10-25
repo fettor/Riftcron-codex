@@ -121,6 +121,7 @@ Voxel EvaluateGenerationGraph(float3 position)
                 float3 warpedPosition = stack.PopPosition();
                 NoiseParameters baseParameters = node.noiseParameters;
                 float3 baseOffset = EvaluateWarpOffset(warpedPosition, baseParameters);
+                baseOffset.y = 0.0f;
                 float warpMix = GetBiomeWarpMixStrength();
                 uint biomeCount = GetBiomeCount();
 
@@ -144,6 +145,7 @@ Voxel EvaluateGenerationGraph(float3 position)
                         biomeParameters.initialAmplitude = GetBiomeWarpStrength(i) * attenuation;
                         biomeParameters.initialFrequency = GetBiomeWarpFrequency(i);
                         float3 offset = EvaluateWarpOffset(warpedPosition, biomeParameters);
+                        offset.y = 0.0f;
                         biomeOffset += offset * contribution;
                         contributionSum += contribution;
                     }

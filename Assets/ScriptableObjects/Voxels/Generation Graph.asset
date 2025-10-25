@@ -84,7 +84,7 @@ MonoBehaviour:
   m_Name: Biome Mixer
   m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Procedural.BiomeMixerNode
   graph: {fileID: 11400000}
-  position: {x: -1304, y: -40}
+  position: {x: -2696, y: -136}
   ports:
     keys:
     - m_position
@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Name: Mountain
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -584, y: 40}
+  position: {x: -504, y: 24}
   ports:
     keys:
     - m_position
@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Name: Transform
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -1608, y: 120}
+  position: {x: -2408, y: 56}
   ports:
     keys:
     - m_position
@@ -1913,14 +1913,14 @@ MonoBehaviour:
       e33: 1
     m_noiseParameters:
       m_seed: 0
-      m_noiseAxes: 0
+      m_noiseAxes: 1
       m_noiseType: 0
       m_numberOfOctaves: 1
       m_initialAmplitude: 20
       m_initialFrequency:
-        x: 0.02
-        y: 0.02
-        z: 0.02
+        x: 0.004
+        y: 0.004
+        z: 0.004
       m_persistence: 0.5
       m_lacunarity:
         x: 2
@@ -2302,7 +2302,7 @@ MonoBehaviour:
   m_Name: Position
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -1416, y: -216}
+  position: {x: -2216, y: -280}
   ports:
     keys:
     - m_position
@@ -2330,7 +2330,7 @@ MonoBehaviour:
   m_Name: Position
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -1832, y: 120}
+  position: {x: -2632, y: 56}
   ports:
     keys:
     - m_position
@@ -2476,7 +2476,7 @@ MonoBehaviour:
   m_Name: Biome Map
   m_EditorClassIdentifier: Assembly-CSharp::Tuntenfisch.Voxels.Procedural.BiomeMapNode
   graph: {fileID: 11400000}
-  position: {x: -1352, y: 152}
+  position: {x: -2152, y: 88}
   ports:
     keys:
     - m_position
@@ -2574,7 +2574,7 @@ MonoBehaviour:
   m_Name: Domain Warp
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -1016, y: -184}
+  position: {x: -1448, y: -104}
   ports:
     keys:
     - m_position
@@ -2608,14 +2608,14 @@ MonoBehaviour:
   m_warpedPosition: 0
   m_noiseParameters:
     m_seed: 0
-    m_noiseAxes: 0
+    m_noiseAxes: 1
     m_noiseType: 0
     m_numberOfOctaves: 1
     m_initialAmplitude: 20
     m_initialFrequency:
-      x: 0.02
-      y: 0.02
-      z: 0.02
+      x: 0.004
+      y: 0.004
+      z: 0.004
     m_persistence: 0.5
     m_lacunarity:
       x: 2
