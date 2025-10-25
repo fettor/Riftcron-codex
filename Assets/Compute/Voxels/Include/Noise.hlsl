@@ -153,18 +153,45 @@ float4 GenerateFBMNoise(float3 position, NoiseParameters noiseParameters)
 
 float3 EvaluateWarpOffset(float3 position, NoiseParameters noiseParameters)
 {
-    const float3 offset = float3(500.0f, 1000.0f, 1500.0f);
+    NoiseParameters warpParameters = noiseParameters;
+    warpParameters.noiseAxes = NoiseAxes::XYZ;
+
+    float amplitude = max(warpParameters.initialAmplitude, 0.0f);
+    float persistence = max(warpParameters.persistence, 0.0f);
+    float3 frequency = max(abs(warpParameters.initialFrequency), 1e-5f);
+    float3 lacunarity = max(abs(warpParameters.lacunarity), 1.0f);
+    uint octaves = max(warpParameters.numberOfOctaves, 1u);
+
+    if (amplitude <= 1e-5f)
+    {
+        return 0.0f;
+    }
+
+    const float3 axisOffsetX = float3(17.0f, 29.0f, -13.0f);
+    const float3 axisOffsetY = float3(-11.0f, 47.0f, 23.0f);
+    const float3 axisOffsetZ = float3(31.0f, -37.0f, 59.0f);
 
     float3 displacement = 0.0f;
 
-    // Add a random offset to the position so the values for x, y and z aren't all the same.
-    displacement.x = GenerateFBMNoise(position + offset, noiseParameters).x;
-
-    if (noiseParameters.noiseAxes != NoiseAxes::XZ)
+    for (uint octave = 0u; octave < octaves; ++octave)
     {
-        displacement.y = GenerateFBMNoise(position, noiseParameters).x;
+        float3 octaveOffset = CalculateOctaveOffset(warpParameters.seed, octave);
+        float3 sampleBase = position * frequency + octaveOffset;
+
+        float xSample = SimplexNoiseGrad(sampleBase + axisOffsetX).w;
+        float ySample = SimplexNoiseGrad(sampleBase + axisOffsetY).w;
+        float zSample = SimplexNoiseGrad(sampleBase + axisOffsetZ).w;
+
+        displacement += amplitude * float3(xSample, ySample, zSample);
+
+        amplitude *= persistence;
+        frequency *= lacunarity;
+
+        if (amplitude <= 1e-5f)
+        {
+            break;
+        }
     }
-    displacement.z = GenerateFBMNoise(position - offset, noiseParameters).x;
 
     return displacement;
 }
