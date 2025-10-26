@@ -262,8 +262,9 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
     HeightSample terraced = HeightSampleTerraceSoft(ridged, blendedSteps, blendedBias, 0.35f, 1.25f);
     HeightSample shaped = HeightSamplePow(terraced, terracePower);
     HeightSample remapped = HeightSamplePow(shaped, blendedExponent);
-    HeightSample scaled = HeightSampleScale(remapped, blendedAmplitude);
-    HeightSample finalHeight = HeightSampleSaturate(scaled);
+    HeightSample normalized = HeightSampleSaturate(remapped);
+    HeightSample finalHeight = HeightSampleScale(normalized, blendedAmplitude);
+    
 
     valueAndGrad = HeightSampleToSdf(position, finalHeight);
 
