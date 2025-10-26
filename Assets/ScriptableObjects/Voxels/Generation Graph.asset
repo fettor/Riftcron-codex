@@ -1893,79 +1893,6 @@ MonoBehaviour:
       BiomeCount: 0
       WarpSeed: 0
       Padding: {x: 0, y: 0}
-  - m_nodeType: 2
-    m_transformMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_noiseParameters:
-      m_seed: 0
-      m_noiseAxes: 1
-      m_noiseType: 0
-      m_numberOfOctaves: 1
-      m_initialAmplitude: 20
-      m_initialFrequency:
-        x: 0.004
-        y: 0.004
-        z: 0.004
-      m_persistence: 0.5
-      m_lacunarity:
-        x: 2
-        y: 2
-        z: 2
-    m_csgPrimitive:
-      m_primitiveType: 0
-    m_materialIndex: 0
-    m_csgOperator:
-      m_operatorIndex: 0
-      m_smoothing: 0
-    m_biomeMapParameters:
-      TemperatureCenter: {x: 0, y: 0, z: 0, w: 0}
-      TemperatureRange: {x: 0, y: 0, z: 0, w: 0}
-      MoistureCenter: {x: 0, y: 0, z: 0, w: 0}
-      MoistureRange: {x: 0, y: 0, z: 0, w: 0}
-      WeightSharpness: {x: 0, y: 0, z: 0, w: 0}
-      WeightGain: 0
-      BiomeCount: 0
-      Padding: {x: 0, y: 0}
-    m_biomeMixerParameters:
-      BaseAmplitude: {x: 0, y: 0, z: 0, w: 0}
-      HeightOffset: {x: 0, y: 0, z: 0, w: 0}
-      BaseFrequencyX: {x: 0, y: 0, z: 0, w: 0}
-      BaseFrequencyY: {x: 0, y: 0, z: 0, w: 0}
-      BaseFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
-      WarpStrength: {x: 0, y: 0, z: 0, w: 0}
-      WarpFrequencyX: {x: 0, y: 0, z: 0, w: 0}
-      WarpFrequencyY: {x: 0, y: 0, z: 0, w: 0}
-      WarpFrequencyZ: {x: 0, y: 0, z: 0, w: 0}
-      MixStrength: 0
-      BiomeCount: 0
-      Padding: {x: 0, y: 0}
-    m_mountainParameters:
-      Amplitude: {x: 0, y: 0, z: 0, w: 0}
-      RemapExponent: {x: 0, y: 0, z: 0, w: 0}
-      TerraceSteps: {x: 0, y: 0, z: 0, w: 0}
-      TerraceBias: {x: 0, y: 0, z: 0, w: 0}
-      BaseParameters: {x: 0, y: 0, z: 0, w: 0}
-      WarpParameters: {x: 0, y: 0, z: 0, w: 0}
-      ExtraParameters0: {x: 0, y: 0, z: 0, w: 0}
-      ExtraParameters1: {x: 0, y: 0, z: 0, w: 0}
-      BiomeCount: 0
-      WarpSeed: 0
-      Padding: {x: 0, y: 0}
   - m_nodeType: 3
     m_transformMatrix:
       e00: 1
@@ -2608,7 +2535,7 @@ MonoBehaviour:
   m_warpedPosition: 0
   m_noiseParameters:
     m_seed: 0
-    m_noiseAxes: 1
+    m_noiseAxes: 0
     m_noiseType: 0
     m_numberOfOctaves: 1
     m_initialAmplitude: 20

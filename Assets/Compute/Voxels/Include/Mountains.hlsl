@@ -132,8 +132,10 @@ static float3 ApplyMountainWarp(float3 position, float amplitude, float frequenc
         return position;
     }
 
-    float3 displacement = SampleSimplexDisplacement(position * frequency, seed);
-    return position + amplitude * displacement;
+    float3 displacement = SampleSimplexDisplacement(float3(position.x, 0.0f, position.z) * frequency, seed);
+    position.x += amplitude * displacement.x;
+    position.z += amplitude * displacement.z;
+    return position;
 }
 
 static HeightSample SampleRidgedFBM(float3 position, NoiseParameters noiseParameters)
@@ -145,18 +147,18 @@ static HeightSample SampleRidgedFBM(float3 position, NoiseParameters noiseParame
     uint octaves = max(noiseParameters.numberOfOctaves, 1u);
 
     float amplitude = 0.5f;
-    float3 frequency = baseFrequency;
+    float3 frequency = float3(baseFrequency.x, 1.0f, baseFrequency.z);
     float sum = 0.0f;
     float3 gradient = 0.0f;
 
     for (uint octave = 0u; octave < octaves; ++octave)
     {
         float3 octaveOffset = CalculateOctaveOffset(noiseParameters.seed, octave);
-        float3 samplePosition = position * frequency + octaveOffset;
+        float3 samplePosition = float3(position.x, 0.0f, position.z) * frequency + octaveOffset;
         float4 noise = SimplexNoiseGrad(samplePosition).wxyz;
 
         float value = noise.x;
-        float3 grad = noise.yzw * frequency;
+        float3 grad = float3(noise.y * frequency.x, 0.0f, noise.w * frequency.z);
 
         float folded = abs(value);
         float ridge = max(offset - folded, 0.0f);
@@ -169,7 +171,8 @@ static HeightSample SampleRidgedFBM(float3 position, NoiseParameters noiseParame
 
         float blendGain = lerp(gain, gain * ridgeValue, 0.5f);
         amplitude *= blendGain;
-        frequency *= lacunarity;
+        frequency.x *= lacunarity.x;
+        frequency.z *= lacunarity.z;
     }
 
     HeightSample sample = MakeHeightSample(sum, gradient);
@@ -188,7 +191,7 @@ static HeightSample SampleGlobalMountainField(float3 position, NoiseParameters b
 static float4 HeightSampleToSdf(float3 position, HeightSample height)
 {
     float value = position.y - height.value;
-    float3 gradient = float3(-height.gradient.x, 1.0f - height.gradient.y, -height.gradient.z);
+    float3 gradient = float3(-height.gradient.x, 1.0f, -height.gradient.z);
     return float4(value, gradient);
 }
 

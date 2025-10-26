@@ -151,47 +151,36 @@ float4 GenerateFBMNoise(float3 position, NoiseParameters noiseParameters)
     return valueAndGradient;
 }
 
+static float4 GenerateFBMNoisePure(float3 position, NoiseParameters noiseParameters)
+{
+    [branch]
+    switch (noiseParameters.noiseType)
+    {
+        case NoiseType::Ridge:
+            return GenerateFBMRidgeNoise(position, noiseParameters);
+
+        case NoiseType::Billow:
+            return GenerateFBMBillowNoise(position, noiseParameters);
+
+        default:
+            return GenerateDefaultFBMNoise(position, noiseParameters);
+    }
+}
+
 float3 EvaluateWarpOffset(float3 position, NoiseParameters noiseParameters)
 {
-    NoiseParameters warpParameters = noiseParameters;
-    warpParameters.noiseAxes = NoiseAxes::XYZ;
-
-    float amplitude = max(warpParameters.initialAmplitude, 0.0f);
-    float persistence = max(warpParameters.persistence, 0.0f);
-    float3 frequency = max(abs(warpParameters.initialFrequency), 1e-5f);
-    float3 lacunarity = max(abs(warpParameters.lacunarity), 1.0f);
-    uint octaves = max(warpParameters.numberOfOctaves, 1u);
-
+    float amplitude = max(noiseParameters.initialAmplitude, 0.0f);
     if (amplitude <= 1e-5f)
     {
         return 0.0f;
     }
 
-    const float3 axisOffsetX = float3(17.0f, 29.0f, -13.0f);
-    const float3 axisOffsetY = float3(-11.0f, 47.0f, 23.0f);
-    const float3 axisOffsetZ = float3(31.0f, -37.0f, 59.0f);
-
+    const float3 offset = float3(500.0f, 1000.0f, 1500.0f);
     float3 displacement = 0.0f;
 
-    for (uint octave = 0u; octave < octaves; ++octave)
-    {
-        float3 octaveOffset = CalculateOctaveOffset(warpParameters.seed, octave);
-        float3 sampleBase = position * frequency + octaveOffset;
-
-        float xSample = SimplexNoiseGrad(sampleBase + axisOffsetX).w;
-        float ySample = SimplexNoiseGrad(sampleBase + axisOffsetY).w;
-        float zSample = SimplexNoiseGrad(sampleBase + axisOffsetZ).w;
-
-        displacement += amplitude * float3(xSample, ySample, zSample);
-
-        amplitude *= persistence;
-        frequency *= lacunarity;
-
-        if (amplitude <= 1e-5f)
-        {
-            break;
-        }
-    }
+    displacement.x = GenerateFBMNoisePure(position + offset, noiseParameters).x;
+    displacement.z = GenerateFBMNoisePure(position - offset, noiseParameters).x;
+    displacement.y = noiseParameters.noiseAxes == NoiseAxes::XYZ ? GenerateFBMNoisePure(position, noiseParameters).x : 0.0f;
 
     return displacement;
 }
