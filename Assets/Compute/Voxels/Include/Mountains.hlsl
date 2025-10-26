@@ -71,13 +71,16 @@ static HeightSample HeightSampleSaturate(HeightSample sample)
 
 static HeightSample HeightSamplePow(HeightSample sample, float exponent)
 {
-    float safeExponent = max(exponent, 1e-3f);
-    float safeValue = max(sample.value, 1e-4f);
-    HeightSample result;
-    result.value = pow(safeValue, safeExponent);
-    float derivative = safeExponent * pow(safeValue, safeExponent - 1.0f);
-    result.gradient = sample.gradient * derivative;
-    return result;
+    float safeExponent = max(exponent, 1.0f);       // never < 1: no 1/x^(1-e) blow-up near 0
+    float safeValue    = max(sample.value, 1e-4f);
+
+    HeightSample r;
+    r.value = pow(safeValue, safeExponent);
+
+    // dy/dx = e * x^(e-1)  -> cap to keep SDF slopes reasonable for DC
+    float deriv = safeExponent * pow(safeValue, safeExponent - 1.0f);
+    r.gradient  = sample.gradient * min(deriv, 1.5f);   // 1.5 is a good, stable cap
+    return r;
 }
 
 static HeightSample HeightSampleTerraceSoft(HeightSample sample, float steps, float bias, float softness, float maxDeriv)
@@ -95,7 +98,7 @@ static HeightSample HeightSampleTerraceSoft(HeightSample sample, float steps, fl
     float cell = floor(t);
     float frac = t - cell;
 
-    float range = max(1.0f - biasClamped, 1e-3f);
+    float range = max(1.0f - biasClamped, 0.20f);  // at least 20% of a step
     float normalized = saturate((frac - biasClamped) / range);
     float smooth = lerp(normalized, normalized * normalized * (3.0f - 2.0f * normalized), 1.0f - soft);
 
@@ -111,6 +114,33 @@ static HeightSample HeightSampleTerraceSoft(HeightSample sample, float steps, fl
     result.value = terracedValue;
     result.gradient = sample.gradient * derivative;
     return result;
+}
+
+static HeightSample HeightSampleTerrace(HeightSample s, float steps, float bias)
+{
+    float stepCount   = max(steps, 1.0f);
+    float biasClamped = saturate(bias);
+    if (stepCount <= 1.001f) return s;
+
+    float t    = s.value * stepCount;
+    float cell = floor(t);
+    float frac = t - cell;
+
+    // Ensure a minimum transition width to avoid razor-thin edges.
+    float range = max(1.0f - biasClamped, 0.20f);      // <-- at least 20% of each step
+    float n     = saturate((frac - biasClamped) / range);
+    float smooth= n * n * (3.0f - 2.0f * n);
+
+    // Derivative of smoothstep, clamped to avoid infinite slopes.
+    float deriv = 0.0f;
+    if (n > 0.0f && n < 1.0f)
+        deriv = 6.0f * n * (1.0f - n) / range;
+    deriv = min(deriv, 1.25f);                         // <-- derivative cap
+
+    HeightSample r;
+    r.value    = (cell + smooth) / stepCount;
+    r.gradient = s.gradient * deriv;                   // scale only by safe derivative
+    return r;
 }
 
 static float3 SampleSimplexDisplacement(float3 position, uint seed)
@@ -146,7 +176,7 @@ static HeightSample SampleRidgedFBM(float3 position, NoiseParameters noiseParame
     float3 lacunarity = max(abs(noiseParameters.lacunarity), 1.0f);
     float gain = max(noiseParameters.persistence, 1e-4f);
     float offset = max(noiseParameters.initialAmplitude, 0.0f);
-    uint octaves = max(noiseParameters.numberOfOctaves, 1u);
+    uint octaves = min(max(noiseParameters.numberOfOctaves, 1u), 7u);
 
     float amplitude = 0.5f;
     float3 frequency = float3(baseFrequency.x, 1.0f, baseFrequency.z);
@@ -206,6 +236,7 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
     uint biomeCount = min(mountainParameters.biomeCount, availableBiomes);
     float mixStrength = saturate(mountainParameters.extraParameters0.x);
     float terracePower = max(mountainParameters.extraParameters0.y, 1e-3f);
+    float terracePower = max(mountainParameters.extraParameters0.y, 1.0f);
     float2 plateauSlopeRange = mountainParameters.extraParameters1.xy;
 
     HeightSample ridged = SampleGlobalMountainField(position, baseParameters, mountainParameters);
@@ -255,12 +286,13 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
             blendedBias = lerp(baseBias, biasSum * invWeight, mixStrength);
         }
     }
-
-    blendedSteps = max(blendedSteps, 1.0f);
-    blendedBias = saturate(blendedBias);
+    
+    blendedSteps = clamp(blendedSteps, 1.0f, 24.0f);  // avoid micro-steps
+    blendedBias  = saturate(blendedBias);
 
     HeightSample terraced = HeightSampleTerraceSoft(ridged, blendedSteps, blendedBias, 0.35f, 1.25f);
     HeightSample shaped = HeightSamplePow(terraced, terracePower);
+    blendedExponent = max(blendedExponent, 1.0f);
     HeightSample remapped = HeightSamplePow(shaped, blendedExponent);
     HeightSample normalized = HeightSampleSaturate(remapped);
     HeightSample finalHeight = HeightSampleScale(normalized, blendedAmplitude);
