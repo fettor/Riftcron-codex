@@ -80,10 +80,11 @@ static HeightSample HeightSamplePow(HeightSample sample, float exponent)
     return result;
 }
 
-static HeightSample HeightSampleTerrace(HeightSample sample, float steps, float bias)
+static HeightSample HeightSampleTerraceSoft(HeightSample sample, float steps, float bias, float softness, float maxDeriv)
 {
     float stepCount = max(steps, 1.0f);
     float biasClamped = saturate(bias);
+    float soft = saturate(softness);
 
     if (stepCount <= 1.001f)
     {
@@ -96,13 +97,14 @@ static HeightSample HeightSampleTerrace(HeightSample sample, float steps, float 
 
     float range = max(1.0f - biasClamped, 1e-3f);
     float normalized = saturate((frac - biasClamped) / range);
-    float smooth = normalized * normalized * (3.0f - 2.0f * normalized);
+    float smooth = lerp(normalized, normalized * normalized * (3.0f - 2.0f * normalized), 1.0f - soft);
 
     float derivative = 0.0f;
     if (normalized > 0.0f && normalized < 1.0f)
     {
         derivative = 6.0f * normalized * (1.0f - normalized) / range;
     }
+    derivative = min(derivative, maxDeriv);
 
     float terracedValue = (cell + smooth) / stepCount;
     HeightSample result;
@@ -162,6 +164,7 @@ static HeightSample SampleRidgedFBM(float3 position, NoiseParameters noiseParame
 
         float folded = abs(value);
         float ridge = max(offset - folded, 0.0f);
+        ridge = ridge * (0.85f + 0.15f * ridge);
         float ridgeValue = ridge * ridge;
         float signValue = value >= 0.0f ? 1.0f : -1.0f;
         float3 ridgeGradient = -2.0f * ridge * signValue * grad;
@@ -256,13 +259,13 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
     blendedSteps = max(blendedSteps, 1.0f);
     blendedBias = saturate(blendedBias);
 
-    HeightSample terraced = HeightSampleTerrace(ridged, blendedSteps, blendedBias);
-    HeightSample normalized = HeightSampleSaturate(terraced);
-    HeightSample sharpened = HeightSamplePow(normalized, terracePower);
-    HeightSample remapped = HeightSamplePow(sharpened, blendedExponent);
+    HeightSample terraced = HeightSampleTerraceSoft(ridged, blendedSteps, blendedBias, 0.35f, 1.25f);
+    HeightSample shaped = HeightSamplePow(terraced, terracePower);
+    HeightSample remapped = HeightSamplePow(shaped, blendedExponent);
     HeightSample scaled = HeightSampleScale(remapped, blendedAmplitude);
+    HeightSample finalHeight = HeightSampleSaturate(scaled);
 
-    valueAndGrad = HeightSampleToSdf(position, scaled);
+    valueAndGrad = HeightSampleToSdf(position, finalHeight);
 
     float dhdx = -valueAndGrad.y;
     float dhdz = -valueAndGrad.w;
@@ -270,7 +273,7 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
     float slopeAngleDeg = degrees(atan(slopeMagnitude));
     float plateau = 1.0f - smoothstep(plateauSlopeRange.x, plateauSlopeRange.y, slopeAngleDeg);
 
-    g_mountainMask = saturate(remapped.value);
+    g_mountainMask = saturate(finalHeight.value);
     g_plateauMask = saturate(plateau);
 }
 
