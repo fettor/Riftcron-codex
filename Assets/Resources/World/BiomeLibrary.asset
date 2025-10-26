@@ -60,8 +60,8 @@ MonoBehaviour:
         z: 0.008
       m_mountains:
         m_amplitude: 120
-        m_remapExponent: 1.1
-        m_terraceSteps: 6
+        m_remapExponent: 1.32
+        m_terraceSteps: 4
         m_terraceBias: 0.35
   - m_id: Boreal
     m_debugColor: {r: 0.4, g: 0.6, b: 0.9, a: 1}

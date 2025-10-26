@@ -4,31 +4,30 @@
 #include "Assets/Compute/Voxels/Include/Noise.hlsl"
 
 // ------------------------------------------------------------
-// Constants (chosen to be safe but still “fantasy”)
+// Constants (safe but still “fantasy”)
 // ------------------------------------------------------------
-
-// Highest spatial frequency allowed for the top octave (cycles per meter).
-// => wavelength >= 1 / MTN_MAX_TOP_FREQ  (here: 50 m)
-static const float MTN_MAX_TOP_FREQ = 0.02;
-
-// Hard caps to prevent extreme settings from reintroducing artifacts.
+static const float MTN_MAX_TOP_FREQ = 0.02;  // cycles/m (=> wavelength >= 50 m)
 static const uint  MTN_MAX_OCTAVES  = 7;
-static const float MTN_MIN_EXP      = 1.0;  // no <1 exponents (flatten-to-1 / blow-ups)
-static const float MTN_POW_DCAP     = 1.5;  // cap derivative amplification from pow()
-static const float MTN_TERR_DCAP    = 1.25; // cap derivative amplification from terrace()
-static const float MTN_TERR_MINW    = 0.20; // >=20% of each step is smoothing
 
-// Slope budget in meters-per-meter (tan(maxSlopeAngle)).
-// tan(72°) ≈ 3.077; 2.5 is a bit gentler and very stable for DC.
-static const float MTN_SLOPE_BUDGET = 2.5;
+static const float MTN_MIN_EXP      = 1.0;   // never <1 (prevents flatten-to-1 / blow-ups)
+static const float MTN_POW_DCAP     = 1.5;   // cap derivative from pow()
+static const float MTN_TERR_DCAP    = 1.25;  // cap derivative from terrace()
+static const float MTN_MAX_WARP_STRETCH = 3.5;
+
+// Make terrace edges clearly wide so they can't form near-vertical bands.
+static const float MTN_TERR_MINW    = 0.35;  // >=35% of each step is smoothing
+
+// Global slope budget: amplitude * |∇(normalized shape)| <= budget
+// 2.0 ≈ tan(63.4°): steep but safe for DC; lower to smooth more.
+static const float MTN_SLOPE_BUDGET = 2.0;
 
 // ------------------------------------------------------------
-// Parameter layout (kept identical to your project)
+// Parameter layout (unchanged)
 // ------------------------------------------------------------
 struct GPUMountainParameters
 {
     float4 amplitude;       // Per-biome amplitude multipliers.
-    float4 remapExponent;   // Per-biome exponent.
+    float4 remapExponent;   // Per-biome remap exponent.
     float4 terraceSteps;    // Per-biome terrace steps.
     float4 terraceBias;     // Per-biome terrace bias.
     float4 baseParameters;  // x: base amplitude, y: base exponent, z: base steps, w: base bias.
@@ -50,9 +49,10 @@ float GetMountainMask()        { return saturate(g_mountainMask); }
 float GetPlateauMask()         { return saturate(g_plateauMask);  }
 
 // ------------------------------------------------------------
-// Height sample
+// Height sample helpers
 // ------------------------------------------------------------
 struct HeightSample { float value; float3 gradient; };
+
 static HeightSample MakeHeightSample(float v, float3 g) { HeightSample s; s.value=v; s.gradient=g; return s; }
 
 static HeightSample HeightSampleScale(HeightSample s, float k)
@@ -61,18 +61,22 @@ static HeightSample HeightSampleScale(HeightSample s, float k)
     return MakeHeightSample(s.value * k, s.gradient * k);
 }
 
-// Clamp value to [0,1] and zero gradient where clamped.
+// Clamp to [0,1] and zero gradient where clamped.
 static HeightSample HeightSampleSaturate(HeightSample s)
 {
     float keep = step(0.0f, s.value) * (1.0f - step(1.0f, s.value));
     return MakeHeightSample(saturate(s.value), s.gradient * keep);
 }
 
-// ------------------------------------------------------------
-// Slope‑safe shaping primitives
-// ------------------------------------------------------------
+static HeightSample HeightSampleLerp(HeightSample a, HeightSample b, float t)
+{
+    t = saturate(t);
+    return MakeHeightSample(lerp(a.value, b.value, t), lerp(a.gradient, b.gradient, t));
+}
 
-// y = pow(x, e) with e >= 1 and derivative cap -> avoids infinite/huge slopes.
+// ------------------------------------------------------------
+// Slope‑safe shaping
+// ------------------------------------------------------------
 static HeightSample HeightSamplePow(HeightSample s, float exponent)
 {
     float e      = max(exponent, MTN_MIN_EXP);
@@ -85,7 +89,7 @@ static HeightSample HeightSamplePow(HeightSample s, float exponent)
     return MakeHeightSample(outVal, s.gradient * deriv);
 }
 
-// Soft terrace in normalized space with bounded derivative and minimum transition width.
+// Terrace with bounded derivative and a guaranteed minimum edge width.
 static HeightSample HeightSampleTerrace(HeightSample s, float steps, float bias)
 {
     float stepCount   = max(steps, 1.0f);
@@ -96,10 +100,10 @@ static HeightSample HeightSampleTerrace(HeightSample s, float steps, float bias)
     float cell = floor(t);
     float frac = t - cell;
 
-    // Ensure a minimum smoothing width per step.
+    // Ensure a wide transition band per step.
     float range = max(1.0f - biasClamped, MTN_TERR_MINW);
     float n     = saturate((frac - biasClamped) / range);
-    float sm    = n * n * (3.0f - 2.0f * n);  // smoothstep
+    float sm    = n * n * (3.0f - 2.0f * n);   // smoothstep
 
     float dsm = 0.0f;
     if (n > 0.0f && n < 1.0f) dsm = 6.0f * n * (1.0f - n) / range;
@@ -112,39 +116,89 @@ static HeightSample HeightSampleTerrace(HeightSample s, float steps, float bias)
 // ------------------------------------------------------------
 // Warping (XZ‑only) & Ridged FBM with frequency cap
 // ------------------------------------------------------------
-
-static float3 SampleSimplexDisplacement(float3 p, uint seed)
+struct MountainDisplacementSample
 {
+    float3 value;
+    float2 gradX;
+    float2 gradZ;
+};
+
+static MountainDisplacementSample SampleSimplexDisplacement(float3 p, uint seed)
+{
+    MountainDisplacementSample sample;
     float3 off = CalculateOctaveOffset(seed, 0u);
-    float3 d;
-    d.x = SimplexNoiseGrad(p + off + float3( 0.0f, 0.0f,  0.0f)).w;
-    d.y = SimplexNoiseGrad(p + off + float3(19.1f, 7.3f, 11.8f)).w;
-    d.z = SimplexNoiseGrad(p + off + float3(-23.7f, 5.2f, 37.3f)).w;
-    return d;
+
+    float4 nx = SimplexNoiseGrad(p + off + float3( 0.0f, 0.0f,  0.0f));
+    float4 ny = SimplexNoiseGrad(p + off + float3(19.1f, 7.3f, 11.8f));
+    float4 nz = SimplexNoiseGrad(p + off + float3(-23.7f, 5.2f, 37.3f));
+
+    sample.value = float3(nx.w, ny.w, nz.w);
+    sample.gradX = float2(nx.x, nx.z);
+    sample.gradZ = float2(nz.x, nz.z);
+    return sample;
 }
 
-// XZ‑only displacement; height must not depend on Y.
-static float3 ApplyMountainWarp(float3 pos, float amp, float freq, uint seed)
+// XZ-only displacement; also returns Jacobian updates through dPos_dX/dPos_dZ.
+static float3 ApplyMountainWarp(float3 pos, float amp, float freq, uint seed, inout float2 dPos_dX, inout float2 dPos_dZ)
 {
-    if (abs(amp) < 1e-4f || abs(freq) < 1e-6f) return pos;
-    float3 d = SampleSimplexDisplacement(float3(pos.x, 0.0f, pos.z) * freq, seed);
-    pos.x += amp * d.x;
-    pos.z += amp * d.z;
-    return pos;
+    float3 newPos    = pos;
+    float2 new_dPos_dX = dPos_dX;
+    float2 new_dPos_dZ = dPos_dZ;
+
+    if (abs(amp) >= 1e-4f && abs(freq) >= 1e-6f)
+    {
+        float3 basePos = float3(newPos.x, 0.0f, newPos.z);
+        MountainDisplacementSample sample = SampleSimplexDisplacement(basePos * freq, seed);
+
+        float2 disp = float2(sample.value.x, sample.value.z) * amp;
+        newPos.x += disp.x;
+        newPos.z += disp.y;
+
+        float2 derivX = sample.gradX * (amp * freq);
+        float2 derivZ = sample.gradZ * (amp * freq);
+
+        float L00 = 1.0f + derivX.x;
+        float L01 = derivX.y;
+        float L10 = derivZ.x;
+        float L11 = 1.0f + derivZ.y;
+
+        float2 prev_dPos_dX = dPos_dX;
+        float2 prev_dPos_dZ = dPos_dZ;
+
+        new_dPos_dX = float2(
+            L00 * prev_dPos_dX.x + L01 * prev_dPos_dX.y,
+            L10 * prev_dPos_dX.x + L11 * prev_dPos_dX.y);
+
+        new_dPos_dZ = float2(
+            L00 * prev_dPos_dZ.x + L01 * prev_dPos_dZ.y,
+            L10 * prev_dPos_dZ.x + L11 * prev_dPos_dZ.y);
+
+        float stretchX = length(new_dPos_dX);
+        float stretchZ = length(new_dPos_dZ);
+        float stretch  = max(max(stretchX, stretchZ), 1.0f);
+        if (stretch > MTN_MAX_WARP_STRETCH)
+        {
+            float scale = MTN_MAX_WARP_STRETCH / stretch;
+            newPos.x = pos.x + (newPos.x - pos.x) * scale;
+            newPos.z = pos.z + (newPos.z - pos.z) * scale;
+            new_dPos_dX = lerp(float2(1.0f, 0.0f), new_dPos_dX, scale);
+            new_dPos_dZ = lerp(float2(0.0f, 1.0f), new_dPos_dZ, scale);
+        }
+    }
+
+    dPos_dX  = new_dPos_dX;
+    dPos_dZ  = new_dPos_dZ;
+    return newPos;
 }
 
-// Ridged multifractal (XZ‑only) with:
-//  - hard octave cap,
-//  - cap on highest achievable frequency,
-//  - tiny peak softening to avoid needle tops.
+// Ridged fBM (XZ‑only) with octave cap and top‑frequency cap.
 static HeightSample SampleRidgedFBM(float3 position, NoiseParameters np)
 {
-    // Prepare frequencies with a top‑frequency cap
     float3 baseFreq = max(abs(np.initialFrequency), 1e-6f);
     float3 lac      = max(abs(np.lacunarity), 1.0f);
     uint   octaves  = min(max(np.numberOfOctaves, 1u), MTN_MAX_OCTAVES);
 
-    // Ensure the highest octave never exceeds MTN_MAX_TOP_FREQ in XZ
+    // Cap highest octave frequency so wavelength >= 1/MTN_MAX_TOP_FREQ
     float powX = pow(lac.x, (float)(octaves - 1u));
     float powZ = pow(lac.z, (float)(octaves - 1u));
     baseFreq.x = min(baseFreq.x, MTN_MAX_TOP_FREQ / max(powX, 1.0f));
@@ -164,13 +218,13 @@ static HeightSample SampleRidgedFBM(float3 position, NoiseParameters np)
         float3 off = CalculateOctaveOffset(np.seed, o);
         float3 q   = float3(position.x, 0.0f, position.z) * freq + off;
 
-        float4 n   = SimplexNoiseGrad(q).wxyz;     // x = value, y/z/w = grad components
+        float4 n   = SimplexNoiseGrad(q).wxyz;   // x=value, y/z/w=grad components
         float  v   = n.x;
         float3 g   = float3(n.y * freq.x, 0.0f, n.w * freq.z);
 
         float  folded = abs(v);
         float  ridge  = max(offset - folded, 0.0f);
-        ridge         = ridge * (0.85f + 0.15f * ridge); // micro‑soften
+        ridge         = ridge * (0.85f + 0.15f * ridge); // tiny soften
         float  r2     = ridge * ridge;
 
         float  sgn    = (v >= 0.0f) ? 1.0f : -1.0f;
@@ -192,9 +246,17 @@ static HeightSample SampleRidgedFBM(float3 position, NoiseParameters np)
 static HeightSample SampleGlobalMountainField(float3 position, NoiseParameters base, GPUMountainParameters mp)
 {
     float3 pw = position;
-    pw = ApplyMountainWarp(pw, mp.warpParameters.x, mp.warpParameters.y, base.seed);
-    pw = ApplyMountainWarp(pw, mp.warpParameters.z, mp.warpParameters.w, base.seed + mp.warpSeed + 97u);
-    return SampleRidgedFBM(pw, base);
+    float2 dPos_dX = float2(1.0f, 0.0f);
+    float2 dPos_dZ = float2(0.0f, 1.0f);
+
+    pw = ApplyMountainWarp(pw, mp.warpParameters.x, mp.warpParameters.y, base.seed, dPos_dX, dPos_dZ);
+    pw = ApplyMountainWarp(pw, mp.warpParameters.z, mp.warpParameters.w, base.seed + mp.warpSeed + 97u, dPos_dX, dPos_dZ);
+    HeightSample sample = SampleRidgedFBM(pw, base);
+    float2 warpedGrad = float2(sample.gradient.x, sample.gradient.z);
+    float gradX = dot(warpedGrad, dPos_dX);
+    float gradZ = dot(warpedGrad, dPos_dZ);
+    sample.gradient = float3(gradX, sample.gradient.y, gradZ);
+    return sample;
 }
 
 // Convert height h(x,z) to SDF: value = y - h; gradient = (-∂h/∂x, 1, -∂h/∂z)
@@ -210,10 +272,10 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
 {
     ResetMountainDebug();
 
-    // Normalized ridged height with valid XZ gradients
+    // 0) Base normalized ridge field (XZ-only) with gradients
     HeightSample ridged = SampleGlobalMountainField(position, baseParameters, mp);
 
-    // --- Blend biome parameters (same semantics you had)
+    // 1) Biome parameter blend (same semantics)
     uint available = GetBiomeCount();
     uint count     = min(mp.biomeCount, available);
 
@@ -246,7 +308,6 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
             bSum += mp.terraceBias[i]   * w;
             wSum += w;
         }
-
         if (wSum > 1e-4f)
         {
             float inv = rcp(wSum);
@@ -257,42 +318,55 @@ void EvaluateMountain(float3 position, NoiseParameters baseParameters, GPUMounta
         }
     }
 
-    // Guards so sliders/biomes can't re‑introduce unstable shapes
+    // Guards
     blendExp   = max(blendExp, MTN_MIN_EXP);
     blendSteps = clamp(blendSteps, 1.0f, 24.0f);
     blendBias  = saturate(blendBias);
 
-    // --- Shaping (slope‑safe)
-    HeightSample sharp    = HeightSamplePow(ridged, blendExp);
-    HeightSample terraced = HeightSampleTerrace(sharp, blendSteps, blendBias);
-    HeightSample shaped   = HeightSamplePow(terraced, terracePow);
+    // 2) Gentle sharpening (pow-safe)
+    HeightSample sharp = HeightSamplePow(ridged, blendExp);
 
-    // --- Local slope limiter BEFORE scaling to meters
-    // Limit final slope: amplitude * |∇shaped| <= MTN_SLOPE_BUDGET  -> scale amplitude locally if needed.
-    float gmag      = length(shaped.gradient.xz);
-    float localAmp  = blendAmp;
+    // 3) Compute local slope (in degrees) to build a "plateau mask"
+    //    We fade terracing out on steep slopes to avoid tier walls/spikes.
+    float2 slopeRange = mp.extraParameters1.xy;  // (min,max) degrees
+    // Slope estimates from both pre- and post-sharpening to avoid false "flat" reads.
+    float slopeMagBase = length(ridged.gradient.xz);
+    float slopeDegBase = degrees(atan(slopeMagBase));
+    float plateauBase  = 1.0f - smoothstep(slopeRange.x, slopeRange.y, slopeDegBase);
+
+    float slopeMagSharp = length(sharp.gradient.xz);
+    float slopeDegSharp = degrees(atan(slopeMagSharp));
+    float plateauSharp  = 1.0f - smoothstep(slopeRange.x, slopeRange.y, slopeDegSharp);
+
+    float plateauMask = saturate(plateauBase * plateauSharp);
+    g_plateauMask = plateauMask;
+
+    // 4) Terracing (soft) but *slope-aware*: only strong on plateaus/gentle slopes
+    HeightSample hardTerr = HeightSampleTerrace(sharp, blendSteps, blendBias);
+    float terrRamp = saturate((blendSteps - 1.0f) / 8.0f); // 0..~1
+    float terrStrength = terrRamp * plateauMask * plateauMask; // heavily bias toward truly flat areas
+    HeightSample terraced = HeightSampleLerp(sharp, hardTerr, terrStrength);
+
+    // 5) Optional secondary shaping via terrace power (>=1, slope‑safe)
+    HeightSample shaped = HeightSamplePow(terraced, terracePow);
+
+    // 6) Local slope limiter BEFORE amplitude: keep final slope bounded
+    float gmag     = length(shaped.gradient.xz);
+    float localAmp = blendAmp;
     if (gmag > 1e-5f)
     {
-        float allowed = MTN_SLOPE_BUDGET / gmag;         // max amplitude at this point
+        float allowed = MTN_SLOPE_BUDGET / gmag;     // max amplitude at this point
         localAmp      = min(blendAmp, allowed);
     }
 
-    // --- Scale to meters; NO clamp after amplitude
+    // 7) Scale to meters; NO clamp after amplitude
     HeightSample meters = HeightSampleScale(shaped, localAmp);
 
-    // --- SDF conversion
+    // 8) SDF
     valueAndGrad = HeightSampleToSdf(position, meters);
 
-    // --- Debug masks
-    float dhdx = -valueAndGrad.y, dhdz = -valueAndGrad.w;
-    float slopeMag = sqrt(dhdx*dhdx + dhdz*dhdz);
-    float slopeDeg = degrees(atan(slopeMag));
-
-    float2 plateauSlopeRange = mp.extraParameters1.xy;
-    float plateau = 1.0f - smoothstep(plateauSlopeRange.x, plateauSlopeRange.y, slopeDeg);
-
+    // Debug mask (post-shaping, pre-scale)
     g_mountainMask = saturate(shaped.value);
-    g_plateauMask  = saturate(plateau);
 }
 
 #endif // TUNTENFISCH_VOXELS_MOUNTAINS
